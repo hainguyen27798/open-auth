@@ -1,0 +1,55 @@
+name: go-open-auth
+networks:
+    go_open_auth_network:
+        driver: bridge
+services:
+    database:
+        container_name: open_auth_database
+        image: mysql:8.0
+        restart: unless-stopped
+        environment:
+            - MYSQL_DATABASE=open_auth
+            - MYSQL_ROOT_PASSWORD=open_auth@123
+        ports:
+            - '3307:3306'
+        healthcheck:
+            test: [ "CMD", "mysqladmin" ,"ping",  "--silent" ]
+            timeout: 20s
+            retries: 10
+        volumes:
+            - open_auth_db_dist:/var/lib/mysql
+            - ./.docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - go_open_auth_network
+    redis:
+        container_name: open_auth_redis
+        image: redis:alpine
+        restart: unless-stopped
+        ports:
+            - '6381:6379'
+        volumes:
+            - open_auth_redis_dist:/data
+        command: redis-server --save 20 1 --loglevel warning --requirepass 123456
+        networks:
+            - go_open_auth_network
+    backend:
+        container_name: open_auth_backend
+        build:
+            context: workspaces/backend
+            dockerfile: Dockerfile
+        environment:
+            MODE: prod
+        depends_on:
+            database:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        restart: unless-stopped
+        ports:
+            - '8001:8001'
+        networks:
+            - go_open_auth_network
+volumes:
+    open_auth_db_dist:
+        driver: local
+    open_auth_redis_dist:

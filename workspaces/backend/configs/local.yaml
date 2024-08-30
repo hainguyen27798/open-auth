@@ -1,0 +1,30 @@
+server:
+    port: 8001
+    mode: dev
+mysql:
+    user: root
+    pass: open_auth@123
+    host: localhost
+    port: 33306
+    db_name: open_auth
+    max_idle_conn: 10
+    max_open_conn: 100
+    conn_max_life_time: 3600
+log:
+    log_level: debug
+    file_name: "./logs/dev.001.log"
+    max_size: 500
+    max_backups: 3
+    max_age: 28
+    compress: true
+smtp:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "*****"
+    password: "*****"
+redis:
+    host: localhost
+    port: 6381
+    password: 123456
+    db: 0
+    pool_size: 100
