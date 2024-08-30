@@ -7,7 +7,38 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createNewUser = `-- name: CreateNewUser :exec
+INSERT INTO users (id, name, email, password, status, social_provider, image, verification_code)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+`
+
+type CreateNewUserParams struct {
+	ID               string
+	Name             string
+	Email            string
+	Password         sql.NullString
+	Status           UsersStatus
+	SocialProvider   NullUsersSocialProvider
+	Image            sql.NullString
+	VerificationCode sql.NullString
+}
+
+func (q *Queries) CreateNewUser(ctx context.Context, arg CreateNewUserParams) error {
+	_, err := q.db.ExecContext(ctx, createNewUser,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.Password,
+		arg.Status,
+		arg.SocialProvider,
+		arg.Image,
+		arg.VerificationCode,
+	)
+	return err
+}
 
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email FROM users WHERE email = ? LIMIT 1

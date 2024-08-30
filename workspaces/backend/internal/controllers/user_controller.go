@@ -27,5 +27,5 @@ func (uc *UserController) Register(c *gin.Context) {
 		response.ErrorResponse(c, response.ErrSendEmailFailed, err)
 		return
 	}
-	response.SuccessResponse(c, response.ErrCodeSuccess, uc.userService.Register(params.Email, params.Password))
+	response.SuccessResponse(c, response.ErrCodeSuccess, uc.userService.Register(params))
 }

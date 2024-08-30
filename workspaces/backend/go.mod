@@ -5,6 +5,7 @@ go 1.22.3
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-sql-driver/mysql v1.8.1
+	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.6.0
 	github.com/pressly/goose/v3 v3.21.1
 	github.com/redis/go-redis/v9 v9.6.1
