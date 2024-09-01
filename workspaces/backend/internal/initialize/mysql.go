@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/go-open-auth/global"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 	"github.com/pressly/goose/v3"
 	"go.uber.org/zap"
 	"time"
@@ -21,15 +21,16 @@ func InitMysql() {
 	config := global.Config.Mysql
 
 	// sql config connection
-	dsnFormat := "%s:%s@tcp(%s:%v)/%s?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := fmt.Sprintf(
-		dsnFormat,
-		config.Username,
-		config.Password,
-		config.Host,
-		config.Port,
-		config.Database,
-	)
+	cfg := mysql.Config{
+		User:      config.Username,
+		Passwd:    config.Password,
+		Net:       "tcp",
+		Addr:      fmt.Sprintf("%s:%s", config.Host, config.Port),
+		DBName:    config.Database,
+		ParseTime: true,
+		Loc:       time.Local,
+	}
+	dsn := cfg.FormatDSN()
 	db, _ := sql.Open("mysql", dsn)
 	err := db.Ping()
 	CheckErrorPanic(err, "Init mysql failed")
