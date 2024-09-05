@@ -10,39 +10,35 @@ import (
 	"time"
 )
 
-type IUserService interface {
+type IAuthService interface {
 	Register(user dto.UserRegistrationRequestDTO) int
 }
 
-type userService struct {
+type authService struct {
 	userRepo     repos.IUserRepo
 	userAuthRepo repos.IUserAuthRepo
 }
 
-func NewUserService(userRepo repos.IUserRepo, userAuthRepo repos.IUserAuthRepo) IUserService {
-	return &userService{
+func NewAuthService(userRepo repos.IUserRepo, userAuthRepo repos.IUserAuthRepo) IAuthService {
+	return &authService{
 		userRepo,
 		userAuthRepo,
 	}
 }
 
-func (us userService) GetUsers() []string {
-	return us.userRepo.GetUsers()
-}
-
-func (us userService) Register(user dto.UserRegistrationRequestDTO) int {
+func (as authService) Register(user dto.UserRegistrationRequestDTO) int {
 	// hash email
 	hashEmail := utils.GetHash(user.Email)
 
 	// check email already exists
-	if us.userRepo.CheckUserByEmail(user.Email) {
+	if as.userRepo.CheckUserByEmail(user.Email) {
 		return response.ErrCodeUserHasExists
 	}
 
 	// new OTP
 	otp := utils.GenerateOTP()
 
-	if err := us.userAuthRepo.AddOTP(hashEmail, otp, int64(10*time.Minute)); err != nil {
+	if err := as.userAuthRepo.AddOTP(hashEmail, otp, int64(10*time.Minute)); err != nil {
 		return response.ErrInvalidOTP
 	}
 
@@ -54,7 +50,7 @@ func (us userService) Register(user dto.UserRegistrationRequestDTO) int {
 	}
 
 	user.Password = hash
-	if err := us.userRepo.CreateNewUser(user, strconv.Itoa(otp)); err != nil {
+	if err := as.userRepo.CreateNewUser(user, strconv.Itoa(otp)); err != nil {
 		global.Logger.Error(err.Error())
 		return response.ErrCreateFailed
 	}

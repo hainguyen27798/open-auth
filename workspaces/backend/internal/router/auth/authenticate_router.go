@@ -8,12 +8,12 @@ import (
 type AuthenticateRouter struct{}
 
 func (authenticateRouter *AuthenticateRouter) InitAuthenticateRouter(Router *gin.RouterGroup) {
-	userController, _ := wires.InitUserRouterHandler()
+	authController, _ := wires.InitAuthRouterHandler()
 
 	// public router
 	authenticateRouterPublic := Router.Group("/auth")
 	{
-		authenticateRouterPublic.POST("/register", userController.Register)
-		authenticateRouterPublic.POST("/login", userController.Login)
+		authenticateRouterPublic.POST("/register", authController.Register)
+		authenticateRouterPublic.POST("/login", authController.Login)
 	}
 }

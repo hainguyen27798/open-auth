@@ -12,12 +12,12 @@ import (
 	"github.com/go-open-auth/internal/services"
 )
 
-// Injectors from user_wire.go:
+// Injectors from auth_wire.go:
 
-func InitUserRouterHandler() (*controllers.UserController, error) {
+func InitAuthRouterHandler() (*controllers.AuthController, error) {
 	iUserRepo := repos.NewUserRepo()
 	iUserAuthRepo := repos.NewUserAuthRepo()
-	iUserService := services.NewUserService(iUserRepo, iUserAuthRepo)
-	userController := controllers.NewUserController(iUserService)
-	return userController, nil
+	iAuthService := services.NewAuthService(iUserRepo, iUserAuthRepo)
+	authController := controllers.NewAuthController(iAuthService)
+	return authController, nil
 }
