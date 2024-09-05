@@ -12,6 +12,7 @@ import (
 
 type IAuthService interface {
 	Register(user dto.UserRegistrationRequestDTO) int
+	Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *int)
 }
 
 type authService struct {
@@ -67,4 +68,25 @@ func (as authService) Register(user dto.UserRegistrationRequestDTO) int {
 	}
 
 	return response.CodeSuccess
+}
+
+func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *int) {
+	userExisting, err := as.userRepo.GetUserById(user.Email)
+	if err != nil {
+		errCode := response.ErrCodeUserNotExists
+		return nil, &errCode
+	}
+
+	if utils.VerifyPassword(user.Password, userExisting.Password.String) {
+		return &dto.UserLoginResponseDTO{
+			ID:           userExisting.ID,
+			Name:         userExisting.Name,
+			Email:        userExisting.Email,
+			AccessToken:  "",
+			RefreshToken: "",
+		}, nil
+	}
+
+	errCode := response.ErrCodeLoginFailed
+	return nil, &errCode
 }

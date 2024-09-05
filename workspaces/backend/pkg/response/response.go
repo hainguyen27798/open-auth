@@ -30,8 +30,18 @@ func MessageResponse(c *gin.Context, code int) {
 	})
 }
 
-func SuccessResponse(c *gin.Context, code int, data interface{}) {
-	c.JSON(getHttpCode(code), TDataResponse{
+func OkResponse(c *gin.Context, code int, data interface{}) {
+	c.JSON(http.StatusOK, TDataResponse{
+		TResponse: TResponse{
+			Code:    code,
+			Message: CodeMsg[code],
+		},
+		Data: data,
+	})
+}
+
+func CreatedResponse(c *gin.Context, code int, data interface{}) {
+	c.JSON(http.StatusCreated, TDataResponse{
 		TResponse: TResponse{
 			Code:    code,
 			Message: CodeMsg[code],

@@ -13,6 +13,7 @@ type IUserRepo interface {
 	CheckUserByEmail(email string) bool
 	CreateNewUser(userDto dto.UserRegistrationRequestDTO, code string) error
 	GetUsers() []string
+	GetUserById(email string) (*db.User, error)
 }
 
 type userRepo struct {
@@ -30,8 +31,7 @@ func (ur userRepo) GetUsers() []string {
 }
 
 func (ur userRepo) CheckUserByEmail(email string) bool {
-	q := db.New(global.Mdb)
-	_, err := q.GetUserByEmail(ctx, email)
+	_, err := ur.sqlC.GetUserByEmail(ctx, email)
 
 	return !errors.Is(err, sql.ErrNoRows)
 }
@@ -47,4 +47,14 @@ func (ur userRepo) CreateNewUser(userDto dto.UserRegistrationRequestDTO, code st
 		Image:            sql.NullString{},
 		VerificationCode: sql.NullString{String: code, Valid: true},
 	})
+}
+
+func (ur userRepo) GetUserById(email string) (*db.User, error) {
+	user, err := ur.sqlC.GetUserByEmail(ctx, email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

@@ -5,6 +5,7 @@ package response
 
 const (
 	CodeSuccess          = 20000 // Success
+	LoginSuccess         = 20101 // Login success
 	ErrBadRequest        = 40000 // Bad Request
 	ErrCodeParamInvalid  = 40001 // Param invalid
 	ErrInvalidToken      = 40002 // Token is invalid
@@ -12,10 +13,13 @@ const (
 	ErrInvalidOTP        = 40004 // OTP is invalid
 	ErrSendEmailFailed   = 40005 // Send mail failed
 	ErrCodeUserHasExists = 40006 // User has already exists
+	ErrCodeLoginFailed   = 40007 // Login credential is incorrect
+	ErrCodeUserNotExists = 40401 // User is not exists
 )
 
 var CodeMsg = map[int]string{
 	CodeSuccess:          "Success",
+	LoginSuccess:         "Login Success",
 	ErrBadRequest:        "Bad Request",
 	ErrCodeParamInvalid:  "Param invalid",
 	ErrInvalidToken:      "Token is invalid",
@@ -23,4 +27,6 @@ var CodeMsg = map[int]string{
 	ErrSendEmailFailed:   "Send email failed",
 	ErrCreateFailed:      "Create failed",
 	ErrCodeUserHasExists: "User has already exists",
+	ErrCodeLoginFailed:   "Login credential is incorrect",
+	ErrCodeUserNotExists: "User not exists",
 }
