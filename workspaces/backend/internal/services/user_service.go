@@ -12,7 +12,6 @@ import (
 
 type IUserService interface {
 	Register(user dto.UserRegistrationRequestDTO) int
-	GetUsers() []string
 }
 
 type userService struct {
@@ -71,5 +70,5 @@ func (us userService) Register(user dto.UserRegistrationRequestDTO) int {
 		return response.ErrSendEmailFailed
 	}
 
-	return response.ErrCodeSuccess
+	return response.CodeSuccess
 }

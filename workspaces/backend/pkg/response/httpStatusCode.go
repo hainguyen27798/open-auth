@@ -1,17 +1,22 @@
 package response
 
+// 200xx: success
+// 400xx: bad request err
+
 const (
-	ErrCodeSuccess       = 20001 // Success
-	ErrCodeParamInvalid  = 2003  // Param invalid
-	ErrInvalidToken      = 30001 // Token is invalid
-	ErrInvalidOTP        = 30002 // OTP is invalid
-	ErrSendEmailFailed   = 30003 // Send mail failed
-	ErrCreateFailed      = 40001 // Create failed
-	ErrCodeUserHasExists = 50001 // User has already exists
+	CodeSuccess          = 20000 // Success
+	ErrBadRequest        = 40000 // Bad Request
+	ErrCodeParamInvalid  = 40001 // Param invalid
+	ErrInvalidToken      = 40002 // Token is invalid
+	ErrCreateFailed      = 40003 // Create failed
+	ErrInvalidOTP        = 40004 // OTP is invalid
+	ErrSendEmailFailed   = 40005 // Send mail failed
+	ErrCodeUserHasExists = 40006 // User has already exists
 )
 
-var ErrCodeMsg = map[int]string{
-	ErrCodeSuccess:       "Success",
+var CodeMsg = map[int]string{
+	CodeSuccess:          "Success",
+	ErrBadRequest:        "Bad Request",
 	ErrCodeParamInvalid:  "Param invalid",
 	ErrInvalidToken:      "Token is invalid",
 	ErrInvalidOTP:        "OTP is invalid",

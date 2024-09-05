@@ -17,15 +17,22 @@ func NewUserController(userService services.IUserService) *UserController {
 	}
 }
 
-func (uc *UserController) GetAllUsers(c *gin.Context) {
-	response.SuccessResponse(c, response.ErrCodeSuccess, uc.userService.GetUsers())
-}
-
 func (uc *UserController) Register(c *gin.Context) {
 	var params dto.UserRegistrationRequestDTO
 	if err := c.ShouldBindBodyWithJSON(&params); err != nil {
-		response.ErrorResponse(c, response.ErrSendEmailFailed, err)
+		response.ValidateErrorResponse(c, err)
 		return
 	}
-	response.SuccessResponse(c, response.ErrCodeSuccess, uc.userService.Register(params))
+
+	response.MessageResponse(c, uc.userService.Register(params))
+}
+
+func (uc *UserController) Login(c *gin.Context) {
+	var params dto.UserRegistrationRequestDTO
+	if err := c.ShouldBindBodyWithJSON(&params); err != nil {
+		response.ValidateErrorResponse(c, err)
+		return
+	}
+
+	response.MessageResponse(c, uc.userService.Register(params))
 }

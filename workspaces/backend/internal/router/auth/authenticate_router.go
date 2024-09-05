@@ -14,5 +14,6 @@ func (authenticateRouter *AuthenticateRouter) InitAuthenticateRouter(Router *gin
 	authenticateRouterPublic := Router.Group("/auth")
 	{
 		authenticateRouterPublic.POST("/register", userController.Register)
+		authenticateRouterPublic.POST("/login", userController.Login)
 	}
 }
