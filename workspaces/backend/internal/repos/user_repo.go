@@ -15,10 +15,14 @@ type IUserRepo interface {
 	GetUsers() []string
 }
 
-type userRepo struct{}
+type userRepo struct {
+	sqlC *db.Queries
+}
 
 func NewUserRepo() IUserRepo {
-	return &userRepo{}
+	return &userRepo{
+		sqlC: db.New(global.Mdb),
+	}
 }
 
 func (ur userRepo) GetUsers() []string {
@@ -33,9 +37,7 @@ func (ur userRepo) CheckUserByEmail(email string) bool {
 }
 
 func (ur userRepo) CreateNewUser(userDto dto.UserRegistrationRequestDTO, code string) error {
-	q := db.New(global.Mdb)
-
-	return q.CreateNewUser(ctx, db.CreateNewUserParams{
+	return ur.sqlC.CreateNewUser(ctx, db.CreateNewUserParams{
 		ID:               uuid.New().String(),
 		Name:             userDto.Name,
 		Email:            userDto.Email,
