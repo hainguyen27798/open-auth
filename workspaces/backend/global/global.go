@@ -13,6 +13,8 @@ const (
 	TokenPublicKey     string = "PUBLIC_KEY"
 	AccessTokenExpire         = 3 * time.Hour
 	RefreshTokenExpire        = 168 * time.Hour
+	RefreshTokenKey    string = "x-rToken"
+	BearerTokenKey     string = "Authorization"
 )
 
 var (

@@ -6,9 +6,8 @@ type UserLoginRequestDTO struct {
 }
 
 type UserLoginResponseDTO struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Email        string `json:"email"`
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	TokenResponseDTO
 }

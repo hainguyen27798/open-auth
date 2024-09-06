@@ -11,22 +11,52 @@ import (
 
 const createNewToken = `-- name: CreateNewToken :exec
 INSERT INTO tokens (id, user_id, session, refresh_token)
-VALUES (?, ?, ?, ?)
+VALUES (UUID(), ?, ?, ?)
 `
 
 type CreateNewTokenParams struct {
-	ID           string
 	UserID       string
 	Session      string
 	RefreshToken string
 }
 
 func (q *Queries) CreateNewToken(ctx context.Context, arg CreateNewTokenParams) error {
-	_, err := q.db.ExecContext(ctx, createNewToken,
-		arg.ID,
-		arg.UserID,
-		arg.Session,
-		arg.RefreshToken,
-	)
+	_, err := q.db.ExecContext(ctx, createNewToken, arg.UserID, arg.Session, arg.RefreshToken)
+	return err
+}
+
+const getTokenBySession = `-- name: GetTokenBySession :one
+SELECT id, session, refresh_token
+FROM tokens
+WHERE session = ?
+LIMIT 1
+`
+
+type GetTokenBySessionRow struct {
+	ID           string
+	Session      string
+	RefreshToken string
+}
+
+func (q *Queries) GetTokenBySession(ctx context.Context, session string) (GetTokenBySessionRow, error) {
+	row := q.db.QueryRowContext(ctx, getTokenBySession, session)
+	var i GetTokenBySessionRow
+	err := row.Scan(&i.ID, &i.Session, &i.RefreshToken)
+	return i, err
+}
+
+const updateRefreshToken = `-- name: UpdateRefreshToken :exec
+UPDATE tokens
+SET refresh_token = ?
+WHERE id = ?
+`
+
+type UpdateRefreshTokenParams struct {
+	RefreshToken string
+	ID           string
+}
+
+func (q *Queries) UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error {
+	_, err := q.db.ExecContext(ctx, updateRefreshToken, arg.RefreshToken, arg.ID)
 	return err
 }

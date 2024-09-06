@@ -3,7 +3,9 @@ package utils
 import (
 	"crypto/rsa"
 	"github.com/go-open-auth/global"
+	"github.com/go-open-auth/pkg/response"
 	"github.com/golang-jwt/jwt/v5"
+	"go.uber.org/zap"
 	"os"
 	"time"
 )
@@ -39,6 +41,31 @@ func GenerateJWT(userId string, payloadData map[string]interface{}) (*Token, err
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
+}
+
+func VerifyJWT(tokenString string) (*TokenClaims, *int) {
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(os.Getenv(global.TokenPublicKey)))
+	if err != nil {
+		global.Logger.Error("parse token public key failed", zap.Error(err))
+		return nil, &[]int{response.ErrInvalidToken}[0]
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return publicKey, nil
+	})
+	if err != nil {
+		global.Logger.Error("parse claim failed", zap.Error(err))
+		return nil, &[]int{response.ErrInvalidToken}[0]
+	}
+
+	if claims, ok := token.Claims.(*TokenClaims); ok && token.Valid {
+		if claims.ExpiresAt.Unix() < time.Now().Unix() {
+			return nil, &[]int{response.ErrExpiredToken}[0]
+		}
+		return claims, nil
+	}
+
+	return nil, &[]int{response.ErrInvalidToken}[0]
 }
 
 func generateToken(userId string, payloadData map[string]interface{}, duration time.Duration, privateKey *rsa.PrivateKey) (string, error) {

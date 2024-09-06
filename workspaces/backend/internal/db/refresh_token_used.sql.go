@@ -9,18 +9,30 @@ import (
 	"context"
 )
 
-const createRefreshTokenUsed = `-- name: CreateRefreshTokenUsed :exec
+const cacheOldRefreshToken = `-- name: CacheOldRefreshToken :exec
 INSERT INTO refresh_tokens_used (id, token_id, refresh_token)
-VALUES (?, ?, ?)
+VALUES (UUID(), ?, ?)
 `
 
-type CreateRefreshTokenUsedParams struct {
-	ID           string
+type CacheOldRefreshTokenParams struct {
 	TokenID      string
 	RefreshToken string
 }
 
-func (q *Queries) CreateRefreshTokenUsed(ctx context.Context, arg CreateRefreshTokenUsedParams) error {
-	_, err := q.db.ExecContext(ctx, createRefreshTokenUsed, arg.ID, arg.TokenID, arg.RefreshToken)
+func (q *Queries) CacheOldRefreshToken(ctx context.Context, arg CacheOldRefreshTokenParams) error {
+	_, err := q.db.ExecContext(ctx, cacheOldRefreshToken, arg.TokenID, arg.RefreshToken)
 	return err
+}
+
+const checkOldRefreshTokenExists = `-- name: CheckOldRefreshTokenExists :one
+SELECT COUNT(id)
+FROM refresh_tokens_used
+WHERE refresh_token = ?
+`
+
+func (q *Queries) CheckOldRefreshTokenExists(ctx context.Context, refreshToken string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, checkOldRefreshTokenExists, refreshToken)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }

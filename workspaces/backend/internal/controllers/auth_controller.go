@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-open-auth/global"
 	"github.com/go-open-auth/internal/dto"
 	"github.com/go-open-auth/internal/services"
 	"github.com/go-open-auth/pkg/response"
@@ -40,3 +41,16 @@ func (ac *AuthController) Login(c *gin.Context) {
 		response.OkResponse(c, response.LoginSuccess, *res)
 	}
 }
+
+func (ac *AuthController) RefreshToken(c *gin.Context) {
+	refreshToken := c.GetHeader(global.RefreshTokenKey)
+
+	newToken, errCode := ac.authService.RefreshToken(refreshToken)
+	if errCode != nil {
+		response.MessageResponse(c, *errCode)
+	} else {
+		response.OkResponse(c, response.CodeSuccess, newToken)
+	}
+}
+
+func (ac *AuthController) Logout(c *gin.Context) {}

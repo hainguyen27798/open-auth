@@ -78,7 +78,7 @@ func GenerateRSA(bits int) {
 		panic(err)
 	}
 
-	publicKey, err := os.ReadFile(privateFileName)
+	publicKey, err := os.ReadFile(publicFileName)
 	if err != nil {
 		panic(err)
 	}

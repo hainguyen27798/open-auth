@@ -13,6 +13,7 @@ import (
 type IAuthService interface {
 	Register(user dto.UserRegistrationRequestDTO) int
 	Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *int)
+	RefreshToken(token string) (*dto.TokenResponseDTO, *int)
 }
 
 type authService struct {
@@ -88,14 +89,27 @@ func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginRespons
 		}
 
 		return &dto.UserLoginResponseDTO{
-			ID:           userExisting.ID,
-			Name:         userExisting.Name,
-			Email:        userExisting.Email,
-			AccessToken:  token.AccessToken,
-			RefreshToken: token.RefreshToken,
+			ID:    userExisting.ID,
+			Name:  userExisting.Name,
+			Email: userExisting.Email,
+			TokenResponseDTO: dto.TokenResponseDTO{
+				AccessToken:  token.AccessToken,
+				RefreshToken: token.RefreshToken,
+			},
 		}, nil
 	}
 
 	errCode := response.ErrCodeLoginFailed
 	return nil, &errCode
+}
+
+func (as authService) RefreshToken(token string) (*dto.TokenResponseDTO, *int) {
+	if newToken, errCode := as.tokenService.ReNewToken(token); errCode != nil {
+		return nil, errCode
+	} else {
+		return &dto.TokenResponseDTO{
+			AccessToken:  newToken.AccessToken,
+			RefreshToken: newToken.RefreshToken,
+		}, nil
+	}
 }
