@@ -18,12 +18,14 @@ type IAuthService interface {
 type authService struct {
 	userRepo     repos.IUserRepo
 	userAuthRepo repos.IUserAuthRepo
+	tokenService ITokenService
 }
 
-func NewAuthService(userRepo repos.IUserRepo, userAuthRepo repos.IUserAuthRepo) IAuthService {
+func NewAuthService(userRepo repos.IUserRepo, userAuthRepo repos.IUserAuthRepo, tokenService ITokenService) IAuthService {
 	return &authService{
 		userRepo,
 		userAuthRepo,
+		tokenService,
 	}
 }
 
@@ -79,10 +81,7 @@ func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginRespons
 
 	if utils.VerifyPassword(user.Password, userExisting.Password.String) {
 
-		token, err := utils.GenerateJWT(userExisting.ID, map[string]interface{}{
-			"name":  userExisting.Name,
-			"email": userExisting.Email,
-		})
+		token, err := as.tokenService.GenerateNewToken(*userExisting)
 		if err != nil {
 			errCode := response.ErrJWTInternalError
 			return nil, &errCode
