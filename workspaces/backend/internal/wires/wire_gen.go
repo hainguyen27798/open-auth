@@ -17,7 +17,9 @@ import (
 func InitAuthRouterHandler() (*controllers.AuthController, error) {
 	iUserRepo := repos.NewUserRepo()
 	iUserAuthRepo := repos.NewUserAuthRepo()
-	iAuthService := services.NewAuthService(iUserRepo, iUserAuthRepo)
+	iTokenRepo := repos.NewTokenRepo()
+	iTokenService := services.NewTokenService(iTokenRepo)
+	iAuthService := services.NewAuthService(iUserRepo, iUserAuthRepo, iTokenService)
 	authController := controllers.NewAuthController(iAuthService)
 	return authController, nil
 }

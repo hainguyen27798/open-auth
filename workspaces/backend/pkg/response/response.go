@@ -30,8 +30,18 @@ func MessageResponse(c *gin.Context, code int) {
 	})
 }
 
-func SuccessResponse(c *gin.Context, code int, data interface{}) {
-	c.JSON(getHttpCode(code), TDataResponse{
+func OkResponse(c *gin.Context, code int, data interface{}) {
+	c.JSON(http.StatusOK, TDataResponse{
+		TResponse: TResponse{
+			Code:    code,
+			Message: CodeMsg[code],
+		},
+		Data: data,
+	})
+}
+
+func CreatedResponse(c *gin.Context, code int, data interface{}) {
+	c.JSON(http.StatusCreated, TDataResponse{
 		TResponse: TResponse{
 			Code:    code,
 			Message: CodeMsg[code],
@@ -66,7 +76,7 @@ func getHttpCode(code int) int {
 		return http.StatusOK
 	case code >= 20100 && code < 20200:
 		return http.StatusOK
-	case code >= 40000 && code < 40100:
+	case code >= 40000 && code < 50000:
 		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError

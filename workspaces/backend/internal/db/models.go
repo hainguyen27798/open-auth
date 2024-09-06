@@ -96,6 +96,23 @@ func (ns NullUsersStatus) Value() (driver.Value, error) {
 	return string(ns.UsersStatus), nil
 }
 
+type RefreshTokensUsed struct {
+	ID           string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	TokenID      string
+	RefreshToken string
+}
+
+type Token struct {
+	ID           string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	UserID       string
+	Session      string
+	RefreshToken string
+}
+
 type User struct {
 	ID               string
 	CreatedAt        time.Time

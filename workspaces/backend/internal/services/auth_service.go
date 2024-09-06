@@ -12,17 +12,22 @@ import (
 
 type IAuthService interface {
 	Register(user dto.UserRegistrationRequestDTO) int
+	Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *int)
+	RefreshToken(token string) (*dto.TokenResponseDTO, *int)
+	Logout(token string) *int
 }
 
 type authService struct {
 	userRepo     repos.IUserRepo
 	userAuthRepo repos.IUserAuthRepo
+	tokenService ITokenService
 }
 
-func NewAuthService(userRepo repos.IUserRepo, userAuthRepo repos.IUserAuthRepo) IAuthService {
+func NewAuthService(userRepo repos.IUserRepo, userAuthRepo repos.IUserAuthRepo, tokenService ITokenService) IAuthService {
 	return &authService{
 		userRepo,
 		userAuthRepo,
+		tokenService,
 	}
 }
 
@@ -67,4 +72,49 @@ func (as authService) Register(user dto.UserRegistrationRequestDTO) int {
 	}
 
 	return response.CodeSuccess
+}
+
+func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *int) {
+	userExisting, err := as.userRepo.GetUserById(user.Email)
+	if err != nil {
+		errCode := response.ErrCodeUserNotExists
+		return nil, &errCode
+	}
+
+	if utils.VerifyPassword(user.Password, userExisting.Password.String) {
+
+		token, err := as.tokenService.GenerateNewToken(*userExisting)
+		if err != nil {
+			errCode := response.ErrJWTInternalError
+			return nil, &errCode
+		}
+
+		return &dto.UserLoginResponseDTO{
+			ID:    userExisting.ID,
+			Name:  userExisting.Name,
+			Email: userExisting.Email,
+			TokenResponseDTO: dto.TokenResponseDTO{
+				AccessToken:  token.AccessToken,
+				RefreshToken: token.RefreshToken,
+			},
+		}, nil
+	}
+
+	errCode := response.ErrCodeLoginFailed
+	return nil, &errCode
+}
+
+func (as authService) RefreshToken(token string) (*dto.TokenResponseDTO, *int) {
+	if newToken, errCode := as.tokenService.ReNewToken(token); errCode != nil {
+		return nil, errCode
+	} else {
+		return &dto.TokenResponseDTO{
+			AccessToken:  newToken.AccessToken,
+			RefreshToken: newToken.RefreshToken,
+		}, nil
+	}
+}
+
+func (as authService) Logout(token string) *int {
+	return as.tokenService.RemoveToken(token)
 }

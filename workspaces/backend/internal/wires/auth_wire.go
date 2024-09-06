@@ -14,6 +14,8 @@ func InitAuthRouterHandler() (*controllers.AuthController, error) {
 	wire.Build(
 		repos.NewUserRepo,
 		repos.NewUserAuthRepo,
+		repos.NewTokenRepo,
+		services.NewTokenService,
 		services.NewAuthService,
 		controllers.NewAuthController,
 	)

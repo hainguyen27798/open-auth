@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-open-auth/global"
 	"github.com/go-open-auth/internal/dto"
 	"github.com/go-open-auth/internal/services"
 	"github.com/go-open-auth/pkg/response"
@@ -28,11 +29,32 @@ func (ac *AuthController) Register(c *gin.Context) {
 }
 
 func (ac *AuthController) Login(c *gin.Context) {
-	var params dto.UserRegistrationRequestDTO
+	var params dto.UserLoginRequestDTO
 	if err := c.ShouldBindBodyWithJSON(&params); err != nil {
 		response.ValidateErrorResponse(c, err)
 		return
 	}
 
-	response.MessageResponse(c, ac.authService.Register(params))
+	if res, errCode := ac.authService.Login(params); errCode != nil {
+		response.MessageResponse(c, *errCode)
+	} else {
+		response.OkResponse(c, response.LoginSuccess, *res)
+	}
+}
+
+func (ac *AuthController) RefreshToken(c *gin.Context) {
+	refreshToken := c.GetHeader(global.RefreshTokenKey)
+
+	newToken, errCode := ac.authService.RefreshToken(refreshToken)
+	if errCode != nil {
+		response.MessageResponse(c, *errCode)
+	} else {
+		response.OkResponse(c, response.CodeSuccess, newToken)
+	}
+}
+
+func (ac *AuthController) Logout(c *gin.Context) {
+	refreshToken := c.GetHeader(global.RefreshTokenKey)
+	code := ac.authService.Logout(refreshToken)
+	response.MessageResponse(c, *code)
 }

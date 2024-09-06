@@ -1,5 +1,5 @@
 run:
-	MODE=dev go run ./cmd/server/
+	MODE=dev air
 
 build:
 	go build -o backend ./cmd/server
