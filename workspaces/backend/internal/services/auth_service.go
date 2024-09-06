@@ -14,6 +14,7 @@ type IAuthService interface {
 	Register(user dto.UserRegistrationRequestDTO) int
 	Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *int)
 	RefreshToken(token string) (*dto.TokenResponseDTO, *int)
+	Logout(token string) *int
 }
 
 type authService struct {
@@ -112,4 +113,8 @@ func (as authService) RefreshToken(token string) (*dto.TokenResponseDTO, *int) {
 			RefreshToken: newToken.RefreshToken,
 		}, nil
 	}
+}
+
+func (as authService) Logout(token string) *int {
+	return as.tokenService.RemoveToken(token)
 }

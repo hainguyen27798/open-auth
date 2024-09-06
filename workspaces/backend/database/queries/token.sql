@@ -12,3 +12,8 @@ LIMIT 1;
 UPDATE tokens
 SET refresh_token = ?
 WHERE id = ?;
+
+-- name: RemoveToken :execrows
+DELETE
+FROM tokens
+WHERE refresh_token = ?

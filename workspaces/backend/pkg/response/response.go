@@ -76,7 +76,7 @@ func getHttpCode(code int) int {
 		return http.StatusOK
 	case code >= 20100 && code < 20200:
 		return http.StatusOK
-	case code >= 40000 && code < 40100:
+	case code >= 40000 && code < 50000:
 		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError

@@ -53,4 +53,8 @@ func (ac *AuthController) RefreshToken(c *gin.Context) {
 	}
 }
 
-func (ac *AuthController) Logout(c *gin.Context) {}
+func (ac *AuthController) Logout(c *gin.Context) {
+	refreshToken := c.GetHeader(global.RefreshTokenKey)
+	code := ac.authService.Logout(refreshToken)
+	response.MessageResponse(c, *code)
+}

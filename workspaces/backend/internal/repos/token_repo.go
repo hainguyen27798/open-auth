@@ -10,6 +10,7 @@ type ITokenRepo interface {
 	CreateNewToken(payload db.CreateNewTokenParams) error
 	UpdateRefreshToken(session string, newRefreshToken string) error
 	CheckOldRefreshTokenExists(oldRefreshToken string) bool
+	RemoveToken(token string) bool
 }
 
 type tokenRepo struct {
@@ -65,4 +66,12 @@ func (tr tokenRepo) UpdateRefreshToken(session string, newRefreshToken string) e
 func (tr tokenRepo) CheckOldRefreshTokenExists(oldRefreshToken string) bool {
 	count, _ := tr.sqlC.CheckOldRefreshTokenExists(ctx, oldRefreshToken)
 	return count > 0
+}
+
+func (tr tokenRepo) RemoveToken(token string) bool {
+	affectRow, err := tr.sqlC.RemoveToken(ctx, token)
+	if err != nil {
+		return false
+	}
+	return affectRow > 0
 }

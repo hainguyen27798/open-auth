@@ -11,6 +11,7 @@ import (
 type ITokenService interface {
 	GenerateNewToken(user db.User) (*utils.Token, error)
 	ReNewToken(token string) (*utils.Token, *int)
+	RemoveToken(token string) *int
 }
 
 type tokenService struct {
@@ -68,4 +69,11 @@ func (ts *tokenService) ReNewToken(token string) (*utils.Token, *int) {
 	}
 
 	return newToken, nil
+}
+
+func (ts *tokenService) RemoveToken(token string) *int {
+	if ok := ts.tokenRepo.RemoveToken(token); ok {
+		return &[]int{response.LogoutSuccess}[0]
+	}
+	return &[]int{response.ErrInvalidToken}[0]
 }

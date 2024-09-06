@@ -6,6 +6,7 @@ package response
 const (
 	CodeSuccess          = 20000 // Success
 	LoginSuccess         = 20101 // Login success
+	LogoutSuccess        = 20102 // Logout success
 	ErrBadRequest        = 40000 // Bad Request
 	ErrCodeParamInvalid  = 40001 // Param invalid
 	ErrCreateFailed      = 40003 // Create failed
@@ -25,6 +26,7 @@ const (
 var CodeMsg = map[int]string{
 	CodeSuccess:          "Success",
 	LoginSuccess:         "Login Success",
+	LogoutSuccess:        "Logout Success",
 	ErrBadRequest:        "Bad Request",
 	ErrCodeParamInvalid:  "Param invalid",
 	ErrInvalidOTP:        "OTP is invalid",

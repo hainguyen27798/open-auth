@@ -45,6 +45,20 @@ func (q *Queries) GetTokenBySession(ctx context.Context, session string) (GetTok
 	return i, err
 }
 
+const removeToken = `-- name: RemoveToken :execrows
+DELETE
+FROM tokens
+WHERE refresh_token = ?
+`
+
+func (q *Queries) RemoveToken(ctx context.Context, refreshToken string) (int64, error) {
+	result, err := q.db.ExecContext(ctx, removeToken, refreshToken)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const updateRefreshToken = `-- name: UpdateRefreshToken :exec
 UPDATE tokens
 SET refresh_token = ?
