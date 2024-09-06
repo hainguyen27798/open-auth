@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"github.com/go-open-auth/global"
 	"os"
 )
 
@@ -82,11 +83,11 @@ func GenerateRSA(bits int) {
 		panic(err)
 	}
 
-	if err := os.Setenv("PRIVATE_KEY", string(privateKey)); err != nil {
+	if err := os.Setenv(global.TokenPrivateKey, string(privateKey)); err != nil {
 		panic(err)
 	}
 
-	if err := os.Setenv("PUBLIC_KEY", string(publicKey)); err != nil {
+	if err := os.Setenv(global.TokenPublicKey, string(publicKey)); err != nil {
 		panic(err)
 	}
 }

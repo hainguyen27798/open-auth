@@ -78,12 +78,22 @@ func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginRespons
 	}
 
 	if utils.VerifyPassword(user.Password, userExisting.Password.String) {
+
+		token, err := utils.GenerateJWT(userExisting.ID, map[string]interface{}{
+			"name":  userExisting.Name,
+			"email": userExisting.Email,
+		})
+		if err != nil {
+			errCode := response.ErrJWTInternalError
+			return nil, &errCode
+		}
+
 		return &dto.UserLoginResponseDTO{
 			ID:           userExisting.ID,
 			Name:         userExisting.Name,
 			Email:        userExisting.Email,
-			AccessToken:  "",
-			RefreshToken: "",
+			AccessToken:  token.AccessToken,
+			RefreshToken: token.RefreshToken,
 		}, nil
 	}
 

@@ -15,6 +15,7 @@ const (
 	ErrCodeUserHasExists = 40006 // User has already exists
 	ErrCodeLoginFailed   = 40007 // Login credential is incorrect
 	ErrCodeUserNotExists = 40401 // User is not exists
+	ErrJWTInternalError  = 50001 // JWT internal error
 )
 
 var CodeMsg = map[int]string{
@@ -29,4 +30,5 @@ var CodeMsg = map[int]string{
 	ErrCodeUserHasExists: "User has already exists",
 	ErrCodeLoginFailed:   "Login credential is incorrect",
 	ErrCodeUserNotExists: "User not exists",
+	ErrJWTInternalError:  "JWT internal error",
 }
