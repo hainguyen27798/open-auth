@@ -33,6 +33,15 @@ func InitPermissionRouterHandler() (*controllers.PermissionController, error) {
 	return permissionController, nil
 }
 
+// Injectors from role_wire.go:
+
+func InitRoleRouterHandler() (*controllers.RoleController, error) {
+	iRoleRepo := repos.NewRoleRepo()
+	iRoleService := services.NewRoleService(iRoleRepo)
+	roleController := controllers.NewRoleController(iRoleService)
+	return roleController, nil
+}
+
 // Injectors from user_wire.go:
 
 func InitUserRouterHandler() (*controllers.UserController, error) {

@@ -49,8 +49,13 @@ func (ps permissionService) GetAllPermissions() []dto.PermissionResponseDTO {
 }
 
 func (ps permissionService) UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *int {
-	updatePayloadDto := utils.DtoToModel[db.UpdatePermissionParams](payload)
+	updatePayloadDto, errCode := utils.DtoToModel[db.UpdatePermissionParams](payload)
 	updatePayloadDto.ID = id
+
+	if errCode != nil {
+		return errCode
+	}
+
 	err := ps.permissionRepo.UpdatePermission(*updatePayloadDto)
 	if err != nil {
 		global.Logger.Error(err.Error())
