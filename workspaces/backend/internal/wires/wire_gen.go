@@ -24,6 +24,15 @@ func InitAuthRouterHandler() (*controllers.AuthController, error) {
 	return authController, nil
 }
 
+// Injectors from permission_wire.go:
+
+func InitPermissionRouterHandler() (*controllers.PermissionController, error) {
+	iPermissionRepo := repos.NewPermissionRepo()
+	iPermissionService := services.NewPermissionService(iPermissionRepo)
+	permissionController := controllers.NewPermissionController(iPermissionService)
+	return permissionController, nil
+}
+
 // Injectors from user_wire.go:
 
 func InitUserRouterHandler() (*controllers.UserController, error) {

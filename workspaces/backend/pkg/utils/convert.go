@@ -2,7 +2,9 @@ package utils
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"github.com/go-open-auth/global"
+	"github.com/go-open-auth/pkg/response"
 	"go.uber.org/zap"
 	"reflect"
 )
@@ -30,6 +32,16 @@ func ModelToDto[T any](model interface{}) interface{} {
 	err := json.Unmarshal(bytes, &dto)
 	if err != nil {
 		global.Logger.Error("convert to dto failed", zap.Error(err))
+		return nil
+	}
+	return dto
+}
+
+func BodyToDto[T any](c *gin.Context) *T {
+	var dto *T
+	if err := c.ShouldBindBodyWithJSON(&dto); err != nil {
+		response.ValidateErrorResponse(c, err)
+		c.Abort()
 		return nil
 	}
 	return dto

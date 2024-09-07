@@ -96,6 +96,17 @@ func (ns NullUsersStatus) Value() (driver.Value, error) {
 	return string(ns.UsersStatus), nil
 }
 
+type Permission struct {
+	ID          string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	ServiceName string
+	Resource    string
+	Action      string
+	Attributes  string
+	Description sql.NullString
+}
+
 type RefreshTokensUsed struct {
 	ID           string
 	CreatedAt    time.Time
