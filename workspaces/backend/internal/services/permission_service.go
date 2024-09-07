@@ -7,10 +7,12 @@ import (
 	"github.com/go-open-auth/internal/dto"
 	"github.com/go-open-auth/internal/repos"
 	"github.com/go-open-auth/pkg/response"
+	"github.com/go-open-auth/pkg/utils"
 )
 
 type IPermissionService interface {
 	CreateNewPermission(payload dto.PermissionRequestDTO) *int
+	GetAllPermissions() []dto.PermissionResponseDTO
 }
 
 type permissionService struct {
@@ -38,4 +40,8 @@ func (ps permissionService) CreateNewPermission(payload dto.PermissionRequestDTO
 		return &[]int{response.ErrCreateFailed}[0]
 	}
 	return &[]int{response.CreatedSuccess}[0]
+}
+
+func (ps permissionService) GetAllPermissions() []dto.PermissionResponseDTO {
+	return utils.ModelToDtos[dto.PermissionResponseDTO](ps.permissionRepo.GetAllPermission())
 }

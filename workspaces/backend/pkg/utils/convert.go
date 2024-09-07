@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-func ModelToDto[T any](model interface{}) interface{} {
+func ModelToDto[T any, MT any](model MT) *T {
 	modelType := reflect.TypeOf(model)
 	modelValue := reflect.ValueOf(model)
 	plain := make(map[string]interface{})
@@ -34,7 +34,15 @@ func ModelToDto[T any](model interface{}) interface{} {
 		global.Logger.Error("convert to dto failed", zap.Error(err))
 		return nil
 	}
-	return dto
+	return &dto
+}
+
+func ModelToDtos[T any, MT any](models []MT) []T {
+	list := make([]T, len(models))
+	for i := range list {
+		list[i] = *ModelToDto[T, MT](models[i])
+	}
+	return list
 }
 
 func BodyToDto[T any](c *gin.Context) *T {

@@ -15,5 +15,6 @@ func (pr *PermissionRouter) InitPermissionRouter(Router *gin.RouterGroup) {
 	permissionRouter.Use(middlewares.AuthMiddleware())
 	{
 		permissionRouter.POST("", permissionController.Create)
+		permissionRouter.GET("", permissionController.GetAll)
 	}
 }

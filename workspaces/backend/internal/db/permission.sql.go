@@ -10,6 +10,43 @@ import (
 	"database/sql"
 )
 
+const getAllPermissions = `-- name: GetAllPermissions :many
+SELECT id, created_at, updated_at, service_name, resource, action, attributes, description
+FROM permissions
+`
+
+func (q *Queries) GetAllPermissions(ctx context.Context) ([]Permission, error) {
+	rows, err := q.db.QueryContext(ctx, getAllPermissions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Permission
+	for rows.Next() {
+		var i Permission
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ServiceName,
+			&i.Resource,
+			&i.Action,
+			&i.Attributes,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertNewPermission = `-- name: InsertNewPermission :exec
 INSERT INTO permissions (id, service_name, resource, action, attributes, description)
 VALUES (UUID(), ?, ?, ?, ?, ?)

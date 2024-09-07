@@ -3,10 +3,12 @@ package repos
 import (
 	"github.com/go-open-auth/global"
 	"github.com/go-open-auth/internal/db"
+	"go.uber.org/zap"
 )
 
 type IPermissionRepo interface {
 	CreateNewPermission(payload db.InsertNewPermissionParams) error
+	GetAllPermission() []db.Permission
 }
 
 type permissionRepo struct {
@@ -21,4 +23,13 @@ func NewPermissionRepo() IPermissionRepo {
 
 func (pr permissionRepo) CreateNewPermission(payload db.InsertNewPermissionParams) error {
 	return pr.sqlC.InsertNewPermission(ctx, payload)
+}
+
+func (pr permissionRepo) GetAllPermission() []db.Permission {
+	permission, err := pr.sqlC.GetAllPermissions(ctx)
+	if err != nil {
+		global.Logger.Error("GetAllPermission: ", zap.Error(err))
+		return []db.Permission{}
+	}
+	return permission
 }

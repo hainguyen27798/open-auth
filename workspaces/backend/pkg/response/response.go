@@ -38,7 +38,7 @@ func NotFoundException(c *gin.Context, code int) {
 	c.Abort()
 }
 
-func OkResponse(c *gin.Context, code int, data interface{}) {
+func OkResponse[T any](c *gin.Context, code int, data T) {
 	c.JSON(http.StatusOK, TDataResponse{
 		TResponse: TResponse{
 			Code:    code,

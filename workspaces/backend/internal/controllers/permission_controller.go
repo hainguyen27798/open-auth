@@ -25,3 +25,8 @@ func (ps *PermissionController) Create(c *gin.Context) {
 	}
 	response.MessageResponse(c, *ps.permissionService.CreateNewPermission(*payload))
 }
+
+func (ps *PermissionController) GetAll(c *gin.Context) {
+	permission := ps.permissionService.GetAllPermissions()
+	response.OkResponse(c, response.CodeSuccess, permission)
+}

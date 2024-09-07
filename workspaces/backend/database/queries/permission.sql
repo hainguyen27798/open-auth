@@ -1,3 +1,7 @@
 -- name: InsertNewPermission :exec
 INSERT INTO permissions (id, service_name, resource, action, attributes, description)
-VALUES (UUID(), ?, ?, ?, ?, ?)
+VALUES (UUID(), ?, ?, ?, ?, ?);
+
+-- name: GetAllPermissions :many
+SELECT *
+FROM permissions;
