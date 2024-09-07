@@ -14,3 +14,8 @@ SET service_name = COALESCE(sqlc.narg('service_name'), service_name),
     attributes   = COALESCE(sqlc.narg('attributes'), attributes),
     description  = COALESCE(sqlc.narg('description'), description)
 WHERE id = ?;
+
+-- name: DeletePermission :execrows
+DELETE
+FROM permissions
+WHERE id = ?;

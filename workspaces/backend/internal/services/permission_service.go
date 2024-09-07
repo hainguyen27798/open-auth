@@ -14,6 +14,7 @@ type IPermissionService interface {
 	CreateNewPermission(payload dto.PermissionRequestDTO) *int
 	GetAllPermissions() []dto.PermissionResponseDTO
 	UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *int
+	DeletePermission(id string) *int
 }
 
 type permissionService struct {
@@ -56,4 +57,11 @@ func (ps permissionService) UpdatePermission(id string, payload dto.UpdatePermis
 		return &[]int{response.ErrBadRequest}[0]
 	}
 	return &[]int{response.CodeSuccess}[0]
+}
+
+func (ps permissionService) DeletePermission(id string) *int {
+	if ok := ps.permissionRepo.DeletePermission(id); ok {
+		return &[]int{response.CodeSuccess}[0]
+	}
+	return &[]int{response.ErrNotFound}[0]
 }

@@ -10,6 +10,20 @@ import (
 	"database/sql"
 )
 
+const deletePermission = `-- name: DeletePermission :execrows
+DELETE
+FROM permissions
+WHERE id = ?
+`
+
+func (q *Queries) DeletePermission(ctx context.Context, id string) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deletePermission, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const getAllPermissions = `-- name: GetAllPermissions :many
 SELECT id, created_at, updated_at, service_name, resource, action, attributes, description
 FROM permissions

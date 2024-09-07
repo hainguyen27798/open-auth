@@ -39,3 +39,8 @@ func (ps *PermissionController) Update(c *gin.Context) {
 	}
 	response.MessageResponse(c, *ps.permissionService.UpdatePermission(permissionId, *payload))
 }
+
+func (ps *PermissionController) Delete(c *gin.Context) {
+	permissionId := c.Param("id")
+	response.MessageResponse(c, *ps.permissionService.DeletePermission(permissionId))
+}

@@ -17,5 +17,6 @@ func (pr *PermissionRouter) InitPermissionRouter(Router *gin.RouterGroup) {
 		permissionRouter.POST("", permissionController.Create)
 		permissionRouter.GET("", permissionController.GetAll)
 		permissionRouter.PATCH(":id", permissionController.Update)
+		permissionRouter.DELETE(":id", permissionController.Delete)
 	}
 }
