@@ -20,10 +20,14 @@ func InitRouter() *gin.Engine {
 
 	// Declare router
 	authRouter := router.AppRouter.Auth
+	userRouter := router.AppRouter.Admin
 
 	mainRouter := r.Group("/v1")
 	{
 		authRouter.InitAuthenticateRouter(mainRouter)
+	}
+	{
+		userRouter.InitUserRouter(mainRouter)
 	}
 
 	return r
