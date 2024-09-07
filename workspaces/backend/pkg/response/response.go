@@ -30,6 +30,14 @@ func MessageResponse(c *gin.Context, code int) {
 	})
 }
 
+func NotFoundException(c *gin.Context, code int) {
+	c.JSON(http.StatusNotFound, TResponse{
+		Code:    code,
+		Message: CodeMsg[code],
+	})
+	c.Abort()
+}
+
 func OkResponse(c *gin.Context, code int, data interface{}) {
 	c.JSON(http.StatusOK, TDataResponse{
 		TResponse: TResponse{
@@ -47,16 +55,6 @@ func CreatedResponse(c *gin.Context, code int, data interface{}) {
 			Message: CodeMsg[code],
 		},
 		Data: data,
-	})
-}
-
-func ErrorResponse(c *gin.Context, code int, err error) {
-	c.JSON(getHttpCode(code), TErrResponse{
-		TResponse: TResponse{
-			Code:    code,
-			Message: CodeMsg[code],
-		},
-		Errors: err.Error(),
 	})
 }
 

@@ -23,3 +23,12 @@ func InitAuthRouterHandler() (*controllers.AuthController, error) {
 	authController := controllers.NewAuthController(iAuthService)
 	return authController, nil
 }
+
+// Injectors from user_wire.go:
+
+func InitUserRouterHandler() (*controllers.UserController, error) {
+	iUserRepo := repos.NewUserRepo()
+	iUserService := services.NewUserService(iUserRepo)
+	userController := controllers.NewUserController(iUserService)
+	return userController, nil
+}

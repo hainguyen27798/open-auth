@@ -2,6 +2,7 @@ package utils
 
 import (
 	"crypto/rsa"
+	"errors"
 	"github.com/go-open-auth/global"
 	"github.com/go-open-auth/pkg/response"
 	"github.com/golang-jwt/jwt/v5"
@@ -55,13 +56,13 @@ func VerifyJWT(tokenString string) (*TokenClaims, *int) {
 	})
 	if err != nil {
 		global.Logger.Error("parse claim failed", zap.Error(err))
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, &[]int{response.ErrExpiredToken}[0]
+		}
 		return nil, &[]int{response.ErrInvalidToken}[0]
 	}
 
 	if claims, ok := token.Claims.(*TokenClaims); ok && token.Valid {
-		if claims.ExpiresAt.Unix() < time.Now().Unix() {
-			return nil, &[]int{response.ErrExpiredToken}[0]
-		}
 		return claims, nil
 	}
 
