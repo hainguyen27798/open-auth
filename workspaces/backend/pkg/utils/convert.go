@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"database/sql"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/go-open-auth/global"
@@ -53,4 +54,38 @@ func BodyToDto[T any](c *gin.Context) *T {
 		return nil
 	}
 	return dto
+}
+
+func DtoToModel[MT any, T any](dto T) *MT {
+	dtoType := reflect.TypeOf(dto)
+	dtoValue := reflect.ValueOf(dto)
+	plain := make(map[string]interface{})
+	var model MT
+
+	for i := 0; i < dtoType.NumField(); i++ {
+		fieldType := dtoType.Field(i)
+		mappingType := fieldType.Tag.Get("mappingType")
+		if mappingType == "NullString" {
+			fieldValue := dtoValue.Field(i)
+			var value string
+			if fieldValue.IsNil() == false {
+				value = *fieldValue.Interface().(*string)
+			}
+			plain[fieldType.Name] = sql.NullString{
+				String: value,
+				Valid:  fieldValue.IsNil() == false,
+			}
+		} else {
+			plain[fieldType.Name] = dtoValue.Field(i).Interface()
+		}
+	}
+
+	bytes, _ := json.Marshal(plain)
+	err := json.Unmarshal(bytes, &model)
+	if err != nil {
+		global.Logger.Error("convert to dto failed", zap.Error(err))
+		return nil
+	}
+
+	return &model
 }

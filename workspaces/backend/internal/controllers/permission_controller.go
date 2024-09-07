@@ -30,3 +30,12 @@ func (ps *PermissionController) GetAll(c *gin.Context) {
 	permission := ps.permissionService.GetAllPermissions()
 	response.OkResponse(c, response.CodeSuccess, permission)
 }
+
+func (ps *PermissionController) Update(c *gin.Context) {
+	permissionId := c.Param("id")
+	payload := utils.BodyToDto[dto.UpdatePermissionRequestDTO](c)
+	if payload == nil {
+		return
+	}
+	response.MessageResponse(c, *ps.permissionService.UpdatePermission(permissionId, *payload))
+}

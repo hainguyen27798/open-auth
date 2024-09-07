@@ -13,6 +13,7 @@ import (
 type IPermissionService interface {
 	CreateNewPermission(payload dto.PermissionRequestDTO) *int
 	GetAllPermissions() []dto.PermissionResponseDTO
+	UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *int
 }
 
 type permissionService struct {
@@ -44,4 +45,15 @@ func (ps permissionService) CreateNewPermission(payload dto.PermissionRequestDTO
 
 func (ps permissionService) GetAllPermissions() []dto.PermissionResponseDTO {
 	return utils.ModelToDtos[dto.PermissionResponseDTO](ps.permissionRepo.GetAllPermission())
+}
+
+func (ps permissionService) UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *int {
+	updatePayloadDto := utils.DtoToModel[db.UpdatePermissionParams](payload)
+	updatePayloadDto.ID = id
+	err := ps.permissionRepo.UpdatePermission(*updatePayloadDto)
+	if err != nil {
+		global.Logger.Error(err.Error())
+		return &[]int{response.ErrBadRequest}[0]
+	}
+	return &[]int{response.CodeSuccess}[0]
 }

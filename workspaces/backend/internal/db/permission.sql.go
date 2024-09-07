@@ -70,3 +70,34 @@ func (q *Queries) InsertNewPermission(ctx context.Context, arg InsertNewPermissi
 	)
 	return err
 }
+
+const updatePermission = `-- name: UpdatePermission :exec
+UPDATE permissions
+SET service_name = COALESCE(?, service_name),
+    resource     = COALESCE(?, resource),
+    action       = COALESCE(?, action),
+    attributes   = COALESCE(?, attributes),
+    description  = COALESCE(?, description)
+WHERE id = ?
+`
+
+type UpdatePermissionParams struct {
+	ServiceName sql.NullString
+	Resource    sql.NullString
+	Action      sql.NullString
+	Attributes  sql.NullString
+	Description sql.NullString
+	ID          string
+}
+
+func (q *Queries) UpdatePermission(ctx context.Context, arg UpdatePermissionParams) error {
+	_, err := q.db.ExecContext(ctx, updatePermission,
+		arg.ServiceName,
+		arg.Resource,
+		arg.Action,
+		arg.Attributes,
+		arg.Description,
+		arg.ID,
+	)
+	return err
+}

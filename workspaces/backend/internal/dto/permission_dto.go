@@ -16,3 +16,11 @@ type PermissionResponseDTO struct {
 	Attributes  string `json:"attributes"`
 	Description string `json:"description" nested:"String"`
 }
+
+type UpdatePermissionRequestDTO struct {
+	ServiceName *string `json:"serviceName,omitempty" mappingType:"NullString"`
+	Action      *string `json:"action,omitempty" mappingType:"NullString"`
+	Resource    *string `json:"resource,omitempty" mappingType:"NullString"`
+	Attributes  *string `json:"attributes,omitempty" mappingType:"NullString"`
+	Description *string `json:"description,omitempty" mappingType:"NullString"`
+}
