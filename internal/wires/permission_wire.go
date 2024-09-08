@@ -4,10 +4,10 @@
 package wires
 
 import (
-	"github.com/go-open-auth/internal/controllers"
-	"github.com/go-open-auth/internal/repos"
-	"github.com/go-open-auth/internal/services"
 	"github.com/google/wire"
+	"github.com/open-auth/internal/controllers"
+	"github.com/open-auth/internal/repos"
+	"github.com/open-auth/internal/services"
 )
 
 func InitPermissionRouterHandler() (*controllers.PermissionController, error) {

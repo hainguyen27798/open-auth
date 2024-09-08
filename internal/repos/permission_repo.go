@@ -1,8 +1,8 @@
 package repos
 
 import (
-	"github.com/go-open-auth/global"
-	"github.com/go-open-auth/internal/db"
+	"github.com/open-auth/global"
+	"github.com/open-auth/internal/db"
 	"go.uber.org/zap"
 )
 

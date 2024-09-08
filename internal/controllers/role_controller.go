@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-open-auth/internal/dto"
-	"github.com/go-open-auth/internal/services"
-	"github.com/go-open-auth/pkg/response"
-	"github.com/go-open-auth/pkg/utils"
+	"github.com/open-auth/internal/dto"
+	"github.com/open-auth/internal/services"
+	"github.com/open-auth/pkg/response"
+	"github.com/open-auth/pkg/utils"
 )
 
 type RoleController struct {

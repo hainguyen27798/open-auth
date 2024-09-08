@@ -2,7 +2,7 @@ package initialize
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-open-auth/internal/router"
+	"github.com/open-auth/internal/router"
 	"os"
 )
 

@@ -3,7 +3,7 @@ package utils
 import (
 	"bytes"
 	"fmt"
-	"github.com/go-open-auth/global"
+	"github.com/open-auth/global"
 	"go.uber.org/zap"
 	"html/template"
 	"net/smtp"

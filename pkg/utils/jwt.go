@@ -3,9 +3,9 @@ package utils
 import (
 	"crypto/rsa"
 	"errors"
-	"github.com/go-open-auth/global"
-	"github.com/go-open-auth/pkg/response"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/open-auth/global"
+	"github.com/open-auth/pkg/response"
 	"go.uber.org/zap"
 	"os"
 	"time"

@@ -1,8 +1,8 @@
 package initialize
 
 import (
-	"github.com/go-open-auth/global"
-	"github.com/go-open-auth/pkg/logger"
+	"github.com/open-auth/global"
+	"github.com/open-auth/pkg/logger"
 )
 
 func InitLogger() {

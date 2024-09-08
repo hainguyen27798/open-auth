@@ -3,8 +3,8 @@ package initialize
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-open-auth/global"
 	"github.com/go-sql-driver/mysql"
+	"github.com/open-auth/global"
 	"github.com/pressly/goose/v3"
 	"go.uber.org/zap"
 	"time"

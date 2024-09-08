@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/go-open-auth/internal/initialize"
-	"github.com/go-open-auth/pkg/utils"
+	"github.com/open-auth/internal/initialize"
+	"github.com/open-auth/pkg/utils"
 )
 
 func main() {

@@ -3,10 +3,10 @@ package repos
 import (
 	"database/sql"
 	"errors"
-	"github.com/go-open-auth/global"
-	"github.com/go-open-auth/internal/db"
-	"github.com/go-open-auth/internal/dto"
 	"github.com/google/uuid"
+	"github.com/open-auth/global"
+	"github.com/open-auth/internal/db"
+	"github.com/open-auth/internal/dto"
 )
 
 type IUserRepo interface {

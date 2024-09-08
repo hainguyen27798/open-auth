@@ -1,4 +1,4 @@
-module github.com/go-open-auth
+module github.com/open-auth
 
 go 1.22.3
 

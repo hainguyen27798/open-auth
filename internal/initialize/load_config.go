@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"github.com/go-open-auth/global"
+	"github.com/open-auth/global"
 	"github.com/spf13/viper"
 	"os"
 )

@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/go-open-auth/pkg/setting"
+	"github.com/open-auth/pkg/setting"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"

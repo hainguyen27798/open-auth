@@ -2,10 +2,10 @@ package services
 
 import (
 	"fmt"
-	"github.com/go-open-auth/internal/db"
-	"github.com/go-open-auth/internal/repos"
-	"github.com/go-open-auth/pkg/response"
-	"github.com/go-open-auth/pkg/utils"
+	"github.com/open-auth/internal/db"
+	"github.com/open-auth/internal/repos"
+	"github.com/open-auth/pkg/response"
+	"github.com/open-auth/pkg/utils"
 )
 
 type ITokenService interface {

@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/go-open-auth/internal/router/admin"
-	"github.com/go-open-auth/internal/router/auth"
+	"github.com/open-auth/internal/router/admin"
+	"github.com/open-auth/internal/router/auth"
 )
 
 type GroupRouter struct {

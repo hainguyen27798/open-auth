@@ -2,7 +2,7 @@ package initialize
 
 import (
 	"fmt"
-	"github.com/go-open-auth/global"
+	"github.com/open-auth/global"
 )
 
 func Run() {

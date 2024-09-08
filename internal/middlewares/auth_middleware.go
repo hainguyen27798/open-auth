@@ -2,9 +2,9 @@ package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-open-auth/global"
-	"github.com/go-open-auth/pkg/response"
-	"github.com/go-open-auth/pkg/utils"
+	"github.com/open-auth/global"
+	"github.com/open-auth/pkg/response"
+	"github.com/open-auth/pkg/utils"
 	"strings"
 )
 

@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-open-auth/internal/wires"
+	"github.com/open-auth/internal/wires"
 )
 
 type AuthenticateRouter struct{}

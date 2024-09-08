@@ -3,7 +3,7 @@ package initialize
 import (
 	"context"
 	"fmt"
-	"github.com/go-open-auth/global"
+	"github.com/open-auth/global"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 )

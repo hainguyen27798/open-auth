@@ -2,8 +2,8 @@ package repos
 
 import (
 	"database/sql"
-	"github.com/go-open-auth/global"
-	"github.com/go-open-auth/internal/db"
+	"github.com/open-auth/global"
+	"github.com/open-auth/internal/db"
 )
 
 type ITokenRepo interface {
