@@ -27,7 +27,7 @@ func NewPermissionService(permissionRepo repos.IPermissionRepo) IPermissionServi
 	}
 }
 
-func (ps permissionService) CreateNewPermission(payload dto.PermissionRequestDTO) *response.ServerCode {
+func (ps *permissionService) CreateNewPermission(payload dto.PermissionRequestDTO) *response.ServerCode {
 	err := ps.permissionRepo.CreateNewPermission(db.InsertNewPermissionParams{
 		ServiceName: payload.ServiceName,
 		Resource:    payload.Resource,
@@ -44,11 +44,11 @@ func (ps permissionService) CreateNewPermission(payload dto.PermissionRequestDTO
 	return response.ReturnCode(response.CreatedSuccess)
 }
 
-func (ps permissionService) GetAllPermissions() []dto.PermissionResponseDTO {
+func (ps *permissionService) GetAllPermissions() []dto.PermissionResponseDTO {
 	return utils.ModelToDtos[dto.PermissionResponseDTO](ps.permissionRepo.GetAllPermission())
 }
 
-func (ps permissionService) UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *response.ServerCode {
+func (ps *permissionService) UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *response.ServerCode {
 	updatePayloadDto, errCode := utils.DtoToModel[db.UpdatePermissionParams](payload)
 	updatePayloadDto.ID = id
 
@@ -69,7 +69,7 @@ func (ps permissionService) UpdatePermission(id string, payload dto.UpdatePermis
 	return response.ReturnCode(response.CodeSuccess)
 }
 
-func (ps permissionService) DeletePermission(id string) *response.ServerCode {
+func (ps *permissionService) DeletePermission(id string) *response.ServerCode {
 	if ok := ps.permissionRepo.DeletePermission(id); ok {
 		return response.ReturnCode(response.CodeSuccess)
 	}

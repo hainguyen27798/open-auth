@@ -15,12 +15,12 @@ type userService struct {
 }
 
 func NewUserService(userRepo repos.IUserRepo) IUserService {
-	return userService{
+	return &userService{
 		userRepo,
 	}
 }
 
-func (us userService) GetMe(email string) (*db.User, *response.ServerCode) {
+func (us *userService) GetMe(email string) (*db.User, *response.ServerCode) {
 	user, err := us.userRepo.GetUserById(email)
 
 	if err != nil {

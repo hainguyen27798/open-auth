@@ -37,6 +37,7 @@ const (
 	ErrStolenToken       = 40104 // Token was stolen
 	ErrNotFound          = 40400 // Resource not found
 	ErrCodeUserNotExists = 40401 // User is not exists
+	ErrInternalError     = 50000 // Internal error
 	ErrJWTInternalError  = 50001 // JWT internal error
 )
 
@@ -58,5 +59,6 @@ var CodeMsg = map[int]string{
 	ErrStolenToken:       "Token is stolen",
 	ErrNotFound:          "Resource not found",
 	ErrCodeUserNotExists: "User not exists",
+	ErrInternalError:     "Internal error",
 	ErrJWTInternalError:  "JWT internal error",
 }

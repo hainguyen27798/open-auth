@@ -31,7 +31,7 @@ func NewAuthService(userRepo repos.IUserRepo, userAuthRepo repos.IUserAuthRepo, 
 	}
 }
 
-func (as authService) Register(user dto.UserRegistrationRequestDTO) *response.ServerCode {
+func (as *authService) Register(user dto.UserRegistrationRequestDTO) *response.ServerCode {
 	// hash email
 	hashEmail := utils.GetHash(user.Email)
 
@@ -74,7 +74,7 @@ func (as authService) Register(user dto.UserRegistrationRequestDTO) *response.Se
 	return response.ReturnCode(response.CodeSuccess)
 }
 
-func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *response.ServerCode) {
+func (as *authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *response.ServerCode) {
 	userExisting, err := as.userRepo.GetUserById(user.Email)
 	if err != nil {
 		return nil, response.ReturnCode(response.ErrCodeUserNotExists)
@@ -101,7 +101,7 @@ func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginRespons
 	return nil, response.ReturnCode(response.ErrCodeLoginFailed)
 }
 
-func (as authService) RefreshToken(token string) (*dto.TokenResponseDTO, *response.ServerCode) {
+func (as *authService) RefreshToken(token string) (*dto.TokenResponseDTO, *response.ServerCode) {
 	if newToken, errCode := as.tokenService.ReNewToken(token); errCode != nil {
 		return nil, errCode
 	} else {
@@ -112,6 +112,6 @@ func (as authService) RefreshToken(token string) (*dto.TokenResponseDTO, *respon
 	}
 }
 
-func (as authService) Logout(token string) *response.ServerCode {
+func (as *authService) Logout(token string) *response.ServerCode {
 	return as.tokenService.RemoveToken(token)
 }
