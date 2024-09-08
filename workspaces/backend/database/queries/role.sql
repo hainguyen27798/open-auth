@@ -17,7 +17,7 @@ DELETE
 FROM roles
 WHERE id = ?;
 
--- name: UpdateRole :execrows
+-- name: UpdateRole :exec
 UPDATE roles
-SET description = ?
+SET description = COALESCE(?, description)
 WHERE id = ?;

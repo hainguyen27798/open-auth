@@ -95,9 +95,9 @@ func (q *Queries) InsertNewRole(ctx context.Context, arg InsertNewRoleParams) er
 	return err
 }
 
-const updateRole = `-- name: UpdateRole :execrows
+const updateRole = `-- name: UpdateRole :exec
 UPDATE roles
-SET description = ?
+SET description = COALESCE(?, description)
 WHERE id = ?
 `
 
@@ -106,10 +106,7 @@ type UpdateRoleParams struct {
 	ID          string
 }
 
-func (q *Queries) UpdateRole(ctx context.Context, arg UpdateRoleParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, updateRole, arg.Description, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+func (q *Queries) UpdateRole(ctx context.Context, arg UpdateRoleParams) error {
+	_, err := q.db.ExecContext(ctx, updateRole, arg.Description, arg.ID)
+	return err
 }

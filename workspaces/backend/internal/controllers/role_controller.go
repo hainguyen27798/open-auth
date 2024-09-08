@@ -42,3 +42,17 @@ func (rc *RoleController) Get(c *gin.Context) {
 
 	response.OkResponse(c, response.CodeSuccess, role)
 }
+
+func (rc *RoleController) Update(c *gin.Context) {
+	roleId := c.Param("id")
+	payload := utils.BodyToDto[dto.UpdateRoleRequestDTO](c)
+	if payload == nil {
+		return
+	}
+	response.MessageResponse(c, rc.roleService.UpdateRole(roleId, *payload).Code())
+}
+
+func (rc *RoleController) Delete(c *gin.Context) {
+	roleId := c.Param("id")
+	response.MessageResponse(c, rc.roleService.DeleteRole(roleId).Code())
+}
