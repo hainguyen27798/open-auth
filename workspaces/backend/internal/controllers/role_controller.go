@@ -23,10 +23,22 @@ func (rc *RoleController) Create(c *gin.Context) {
 	if payload == nil {
 		return
 	}
-	response.MessageResponse(c, *rc.roleService.CreateNewRole(*payload))
+	response.MessageResponse(c, rc.roleService.CreateNewRole(*payload).Code())
 }
 
 func (rc *RoleController) GetAll(c *gin.Context) {
-	roles := rc.roleService.GetAllRole()
+	roles := rc.roleService.GetAllRoles()
 	response.OkResponse(c, response.CodeSuccess, roles)
+}
+
+func (rc *RoleController) Get(c *gin.Context) {
+	roleId := c.Param("id")
+	role, errCode := rc.roleService.GetRole(roleId)
+
+	if errCode != nil {
+		response.NotFoundException(c, errCode.Code())
+		return
+	}
+
+	response.OkResponse(c, response.CodeSuccess, role)
 }

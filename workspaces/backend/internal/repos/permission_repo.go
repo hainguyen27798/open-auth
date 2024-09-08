@@ -9,7 +9,7 @@ import (
 type IPermissionRepo interface {
 	CreateNewPermission(payload db.InsertNewPermissionParams) error
 	GetAllPermission() []db.Permission
-	UpdatePermission(permission db.UpdatePermissionParams) error
+	UpdatePermission(permission db.UpdatePermissionParams) (bool, error)
 	DeletePermission(id string) bool
 }
 
@@ -36,8 +36,14 @@ func (pr permissionRepo) GetAllPermission() []db.Permission {
 	return permission
 }
 
-func (pr permissionRepo) UpdatePermission(permission db.UpdatePermissionParams) error {
-	return pr.sqlC.UpdatePermission(ctx, permission)
+func (pr permissionRepo) UpdatePermission(permission db.UpdatePermissionParams) (bool, error) {
+	affectRows, err := pr.sqlC.UpdatePermission(ctx, permission)
+
+	if err != nil {
+		return false, err
+	}
+
+	return affectRows > 0, nil
 }
 
 func (pr permissionRepo) DeletePermission(id string) bool {

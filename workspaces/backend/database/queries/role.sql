@@ -6,6 +6,12 @@ VALUES (UUID(), ?, ?);
 SELECT *
 FROM roles;
 
+-- name: GetRoleById :one
+SELECT *
+FROM roles
+WHERE id = ?
+LIMIT 1;
+
 -- name: DeleteRole :execrows
 DELETE
 FROM roles

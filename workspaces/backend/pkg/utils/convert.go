@@ -56,7 +56,7 @@ func BodyToDto[T any](c *gin.Context) *T {
 	return dto
 }
 
-func DtoToModel[MT any, T any](dto T) (*MT, *int) {
+func DtoToModel[MT any, T any](dto T) (*MT, *response.ServerCode) {
 	dtoType := reflect.TypeOf(dto)
 	dtoValue := reflect.ValueOf(dto)
 	plain := make(map[string]interface{})
@@ -84,7 +84,7 @@ func DtoToModel[MT any, T any](dto T) (*MT, *int) {
 	err := json.Unmarshal(bytes, &model)
 	if err != nil {
 		global.Logger.Error("convert to dto failed", zap.Error(err))
-		return nil, &[]int{response.ErrCodeParamInvalid}[0]
+		return nil, response.ReturnCode(response.ErrCodeParamInvalid)
 	}
 
 	return &model, nil

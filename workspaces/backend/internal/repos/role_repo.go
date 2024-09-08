@@ -9,6 +9,7 @@ import (
 type IRoleRepo interface {
 	CreateNewRole(payload db.InsertNewRoleParams) error
 	GetAllRoles() []db.Role
+	GetById(id string) (*db.Role, error)
 }
 
 type roleRepo struct {
@@ -34,4 +35,15 @@ func (rr roleRepo) GetAllRoles() []db.Role {
 	}
 
 	return roles
+}
+
+func (rr roleRepo) GetById(id string) (*db.Role, error) {
+	role, err := rr.sqlC.GetRoleById(ctx, id)
+
+	if err != nil {
+		global.Logger.Error("GetById: ", zap.Error(err))
+		return nil, err
+	}
+
+	return &role, nil
 }

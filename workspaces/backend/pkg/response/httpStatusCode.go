@@ -1,5 +1,21 @@
 package response
 
+type ServerCode struct {
+	code int
+}
+
+func ReturnCode(code int) *ServerCode {
+	return &ServerCode{code}
+}
+
+func (sc *ServerCode) InValid() bool {
+	return sc.Code() >= ErrBadRequest
+}
+
+func (sc *ServerCode) Code() int {
+	return sc.code
+}
+
 // 200xx: success
 // 400xx: bad request err
 

@@ -16,5 +16,6 @@ func (rr *RoleRouter) InitRoleRouter(Router *gin.RouterGroup) {
 	{
 		roleRouter.POST("", RoleController.Create)
 		roleRouter.GET("", RoleController.GetAll)
+		roleRouter.GET(":id", RoleController.Get)
 	}
 }

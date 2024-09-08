@@ -59,6 +59,27 @@ func (q *Queries) GetAllRoles(ctx context.Context) ([]Role, error) {
 	return items, nil
 }
 
+const getRoleById = `-- name: GetRoleById :one
+SELECT id, created_at, updated_at, name, description, can_modify
+FROM roles
+WHERE id = ?
+LIMIT 1
+`
+
+func (q *Queries) GetRoleById(ctx context.Context, id string) (Role, error) {
+	row := q.db.QueryRowContext(ctx, getRoleById, id)
+	var i Role
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Description,
+		&i.CanModify,
+	)
+	return i, err
+}
+
 const insertNewRole = `-- name: InsertNewRole :exec
 INSERT INTO roles (id, name, description)
 VALUES (UUID(), ?, ?)

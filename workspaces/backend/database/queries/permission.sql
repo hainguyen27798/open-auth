@@ -6,7 +6,7 @@ VALUES (UUID(), ?, ?, ?, ?, ?);
 SELECT *
 FROM permissions;
 
--- name: UpdatePermission :exec
+-- name: UpdatePermission :execrows
 UPDATE permissions
 SET service_name = COALESCE(sqlc.narg('service_name'), service_name),
     resource     = COALESCE(sqlc.narg('resource'), resource),
