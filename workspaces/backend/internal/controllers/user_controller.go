@@ -23,7 +23,7 @@ func (uc *UserController) GetMe(c *gin.Context) {
 	user, errCode := uc.userService.GetMe(userEmail)
 
 	if errCode != nil {
-		response.NotFoundException(c, *errCode)
+		response.NotFoundException(c, errCode.Code())
 		return
 	}
 

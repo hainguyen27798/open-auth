@@ -11,10 +11,10 @@ import (
 )
 
 type IAuthService interface {
-	Register(user dto.UserRegistrationRequestDTO) int
-	Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *int)
-	RefreshToken(token string) (*dto.TokenResponseDTO, *int)
-	Logout(token string) *int
+	Register(user dto.UserRegistrationRequestDTO) *response.ServerCode
+	Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *response.ServerCode)
+	RefreshToken(token string) (*dto.TokenResponseDTO, *response.ServerCode)
+	Logout(token string) *response.ServerCode
 }
 
 type authService struct {
@@ -31,33 +31,33 @@ func NewAuthService(userRepo repos.IUserRepo, userAuthRepo repos.IUserAuthRepo, 
 	}
 }
 
-func (as authService) Register(user dto.UserRegistrationRequestDTO) int {
+func (as authService) Register(user dto.UserRegistrationRequestDTO) *response.ServerCode {
 	// hash email
 	hashEmail := utils.GetHash(user.Email)
 
 	// check email already exists
 	if as.userRepo.CheckUserByEmail(user.Email) {
-		return response.ErrCodeUserHasExists
+		return response.ReturnCode(response.ErrCodeUserHasExists)
 	}
 
 	// new OTP
 	otp := utils.GenerateOTP()
 
 	if err := as.userAuthRepo.AddOTP(hashEmail, otp, int64(10*time.Minute)); err != nil {
-		return response.ErrInvalidOTP
+		return response.ReturnCode(response.ErrInvalidOTP)
 	}
 
 	// create user
 	hash, err := utils.HashPassword(user.Password)
 	if err != nil {
 		global.Logger.Error(err.Error())
-		return response.ErrCreateFailed
+		return response.ReturnCode(response.ErrCreateFailed)
 	}
 
 	user.Password = hash
 	if err := as.userRepo.CreateNewUser(user, strconv.Itoa(otp)); err != nil {
 		global.Logger.Error(err.Error())
-		return response.ErrCreateFailed
+		return response.ReturnCode(response.ErrCreateFailed)
 	}
 
 	if err := utils.SendToEmail(
@@ -68,25 +68,23 @@ func (as authService) Register(user dto.UserRegistrationRequestDTO) int {
 			"otp": strconv.Itoa(otp),
 		},
 	); err != nil {
-		return response.ErrSendEmailFailed
+		return response.ReturnCode(response.ErrSendEmailFailed)
 	}
 
-	return response.CodeSuccess
+	return response.ReturnCode(response.CodeSuccess)
 }
 
-func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *int) {
+func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginResponseDTO, *response.ServerCode) {
 	userExisting, err := as.userRepo.GetUserById(user.Email)
 	if err != nil {
-		errCode := response.ErrCodeUserNotExists
-		return nil, &errCode
+		return nil, response.ReturnCode(response.ErrCodeUserNotExists)
 	}
 
 	if utils.VerifyPassword(user.Password, userExisting.Password.String) {
 
 		token, err := as.tokenService.GenerateNewToken(*userExisting)
 		if err != nil {
-			errCode := response.ErrJWTInternalError
-			return nil, &errCode
+			return nil, response.ReturnCode(response.ErrJWTInternalError)
 		}
 
 		return &dto.UserLoginResponseDTO{
@@ -100,11 +98,10 @@ func (as authService) Login(user dto.UserLoginRequestDTO) (*dto.UserLoginRespons
 		}, nil
 	}
 
-	errCode := response.ErrCodeLoginFailed
-	return nil, &errCode
+	return nil, response.ReturnCode(response.ErrCodeLoginFailed)
 }
 
-func (as authService) RefreshToken(token string) (*dto.TokenResponseDTO, *int) {
+func (as authService) RefreshToken(token string) (*dto.TokenResponseDTO, *response.ServerCode) {
 	if newToken, errCode := as.tokenService.ReNewToken(token); errCode != nil {
 		return nil, errCode
 	} else {
@@ -115,6 +112,6 @@ func (as authService) RefreshToken(token string) (*dto.TokenResponseDTO, *int) {
 	}
 }
 
-func (as authService) Logout(token string) *int {
+func (as authService) Logout(token string) *response.ServerCode {
 	return as.tokenService.RemoveToken(token)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type IUserService interface {
-	GetMe(email string) (*db.User, *int)
+	GetMe(email string) (*db.User, *response.ServerCode)
 }
 
 type userService struct {
@@ -20,11 +20,11 @@ func NewUserService(userRepo repos.IUserRepo) IUserService {
 	}
 }
 
-func (us userService) GetMe(email string) (*db.User, *int) {
+func (us userService) GetMe(email string) (*db.User, *response.ServerCode) {
 	user, err := us.userRepo.GetUserById(email)
 
 	if err != nil {
-		return nil, &[]int{response.ErrNotFound}[0]
+		return nil, response.ReturnCode(response.ErrNotFound)
 	}
 
 	return user, nil

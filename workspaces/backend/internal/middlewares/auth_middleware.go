@@ -22,7 +22,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims, errCode := utils.VerifyJWT(bearerToken[1])
 
 		if errCode != nil {
-			response.MessageResponse(c, *errCode)
+			response.MessageResponse(c, errCode.Code())
 			c.Abort()
 			return
 		}
