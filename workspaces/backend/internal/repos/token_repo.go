@@ -23,11 +23,11 @@ func NewTokenRepo() ITokenRepo {
 	}
 }
 
-func (tr tokenRepo) CreateNewToken(payload db.CreateNewTokenParams) error {
+func (tr *tokenRepo) CreateNewToken(payload db.CreateNewTokenParams) error {
 	return tr.sqlC.CreateNewToken(ctx, payload)
 }
 
-func (tr tokenRepo) UpdateRefreshToken(session string, newRefreshToken string) error {
+func (tr *tokenRepo) UpdateRefreshToken(session string, newRefreshToken string) error {
 	tx, err := global.Mdb.Begin()
 	if err != nil {
 		return err
@@ -63,12 +63,12 @@ func (tr tokenRepo) UpdateRefreshToken(session string, newRefreshToken string) e
 	return tx.Commit()
 }
 
-func (tr tokenRepo) CheckOldRefreshTokenExists(oldRefreshToken string) bool {
+func (tr *tokenRepo) CheckOldRefreshTokenExists(oldRefreshToken string) bool {
 	count, _ := tr.sqlC.CheckOldRefreshTokenExists(ctx, oldRefreshToken)
 	return count > 0
 }
 
-func (tr tokenRepo) RemoveToken(token string) bool {
+func (tr *tokenRepo) RemoveToken(token string) bool {
 	affectRow, err := tr.sqlC.RemoveToken(ctx, token)
 	if err != nil {
 		return false

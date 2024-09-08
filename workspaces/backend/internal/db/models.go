@@ -115,6 +115,20 @@ type RefreshTokensUsed struct {
 	RefreshToken string
 }
 
+type Role struct {
+	ID          string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Name        string
+	Description sql.NullString
+	CanModify   int8
+}
+
+type RolesPermission struct {
+	RoleID       string
+	PermissionID string
+}
+
 type Token struct {
 	ID           string
 	CreatedAt    time.Time
@@ -136,4 +150,5 @@ type User struct {
 	Image            sql.NullString
 	Verify           int8
 	VerificationCode sql.NullString
+	RoleID           sql.NullString
 }

@@ -23,7 +23,7 @@ func (ps *PermissionController) Create(c *gin.Context) {
 	if payload == nil {
 		return
 	}
-	response.MessageResponse(c, *ps.permissionService.CreateNewPermission(*payload))
+	response.MessageResponse(c, ps.permissionService.CreateNewPermission(*payload).Code())
 }
 
 func (ps *PermissionController) GetAll(c *gin.Context) {
@@ -37,10 +37,10 @@ func (ps *PermissionController) Update(c *gin.Context) {
 	if payload == nil {
 		return
 	}
-	response.MessageResponse(c, *ps.permissionService.UpdatePermission(permissionId, *payload))
+	response.MessageResponse(c, ps.permissionService.UpdatePermission(permissionId, *payload).Code())
 }
 
 func (ps *PermissionController) Delete(c *gin.Context) {
 	permissionId := c.Param("id")
-	response.MessageResponse(c, *ps.permissionService.DeletePermission(permissionId))
+	response.MessageResponse(c, ps.permissionService.DeletePermission(permissionId).Code())
 }

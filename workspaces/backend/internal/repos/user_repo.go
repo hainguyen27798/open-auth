@@ -26,17 +26,17 @@ func NewUserRepo() IUserRepo {
 	}
 }
 
-func (ur userRepo) GetUsers() []string {
+func (ur *userRepo) GetUsers() []string {
 	return []string{"hai", "harry"}
 }
 
-func (ur userRepo) CheckUserByEmail(email string) bool {
+func (ur *userRepo) CheckUserByEmail(email string) bool {
 	_, err := ur.sqlC.GetUserByEmail(ctx, email)
 
 	return !errors.Is(err, sql.ErrNoRows)
 }
 
-func (ur userRepo) CreateNewUser(userDto dto.UserRegistrationRequestDTO, code string) error {
+func (ur *userRepo) CreateNewUser(userDto dto.UserRegistrationRequestDTO, code string) error {
 	return ur.sqlC.CreateNewUser(ctx, db.CreateNewUserParams{
 		ID:               uuid.New().String(),
 		Name:             userDto.Name,
@@ -49,7 +49,7 @@ func (ur userRepo) CreateNewUser(userDto dto.UserRegistrationRequestDTO, code st
 	})
 }
 
-func (ur userRepo) GetUserById(email string) (*db.User, error) {
+func (ur *userRepo) GetUserById(email string) (*db.User, error) {
 	user, err := ur.sqlC.GetUserByEmail(ctx, email)
 
 	if err != nil {

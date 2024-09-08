@@ -1,5 +1,21 @@
 package response
 
+type ServerCode struct {
+	code int
+}
+
+func ReturnCode(code int) *ServerCode {
+	return &ServerCode{code}
+}
+
+func (sc *ServerCode) InValid() bool {
+	return sc.Code() >= ErrBadRequest
+}
+
+func (sc *ServerCode) Code() int {
+	return sc.code
+}
+
 // 200xx: success
 // 400xx: bad request err
 
@@ -21,6 +37,7 @@ const (
 	ErrStolenToken       = 40104 // Token was stolen
 	ErrNotFound          = 40400 // Resource not found
 	ErrCodeUserNotExists = 40401 // User is not exists
+	ErrInternalError     = 50000 // Internal error
 	ErrJWTInternalError  = 50001 // JWT internal error
 )
 
@@ -42,5 +59,6 @@ var CodeMsg = map[int]string{
 	ErrStolenToken:       "Token is stolen",
 	ErrNotFound:          "Resource not found",
 	ErrCodeUserNotExists: "User not exists",
+	ErrInternalError:     "Internal error",
 	ErrJWTInternalError:  "JWT internal error",
 }

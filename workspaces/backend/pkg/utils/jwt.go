@@ -44,11 +44,11 @@ func GenerateJWT(userId string, payloadData map[string]interface{}) (*Token, err
 	}, nil
 }
 
-func VerifyJWT(tokenString string) (*TokenClaims, *int) {
+func VerifyJWT(tokenString string) (*TokenClaims, *response.ServerCode) {
 	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(os.Getenv(global.TokenPublicKey)))
 	if err != nil {
 		global.Logger.Error("parse token public key failed", zap.Error(err))
-		return nil, &[]int{response.ErrInvalidToken}[0]
+		return nil, response.ReturnCode(response.ErrInvalidToken)
 	}
 
 	token, err := jwt.ParseWithClaims(tokenString, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -57,16 +57,16 @@ func VerifyJWT(tokenString string) (*TokenClaims, *int) {
 	if err != nil {
 		global.Logger.Error("parse claim failed", zap.Error(err))
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return nil, &[]int{response.ErrExpiredToken}[0]
+			return nil, response.ReturnCode(response.ErrExpiredToken)
 		}
-		return nil, &[]int{response.ErrInvalidToken}[0]
+		return nil, response.ReturnCode(response.ErrInvalidToken)
 	}
 
 	if claims, ok := token.Claims.(*TokenClaims); ok && token.Valid {
 		return claims, nil
 	}
 
-	return nil, &[]int{response.ErrInvalidToken}[0]
+	return nil, response.ReturnCode(response.ErrInvalidToken)
 }
 
 func generateToken(userId string, payloadData map[string]interface{}, duration time.Duration, privateKey *rsa.PrivateKey) (string, error) {

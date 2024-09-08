@@ -3,4 +3,5 @@ package admin
 type RouterGroup struct {
 	UserRouter
 	PermissionRouter
+	RoleRouter
 }

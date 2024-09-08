@@ -29,6 +29,7 @@ func InitRouter() *gin.Engine {
 	{
 		adminRouter.InitUserRouter(mainRouter)
 		adminRouter.InitPermissionRouter(mainRouter)
+		adminRouter.InitRoleRouter(mainRouter)
 	}
 
 	return r

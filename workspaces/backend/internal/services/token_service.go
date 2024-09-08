@@ -10,8 +10,8 @@ import (
 
 type ITokenService interface {
 	GenerateNewToken(user db.User) (*utils.Token, error)
-	ReNewToken(token string) (*utils.Token, *int)
-	RemoveToken(token string) *int
+	ReNewToken(token string) (*utils.Token, *response.ServerCode)
+	RemoveToken(token string) *response.ServerCode
 }
 
 type tokenService struct {
@@ -47,9 +47,9 @@ func (ts *tokenService) GenerateNewToken(user db.User) (*utils.Token, error) {
 	return token, nil
 }
 
-func (ts *tokenService) ReNewToken(token string) (*utils.Token, *int) {
+func (ts *tokenService) ReNewToken(token string) (*utils.Token, *response.ServerCode) {
 	if ts.tokenRepo.CheckOldRefreshTokenExists(token) {
-		return nil, &[]int{response.ErrStolenToken}[0]
+		return nil, response.ReturnCode(response.ErrStolenToken)
 	}
 
 	claims, errCode := utils.VerifyJWT(token)
@@ -59,21 +59,21 @@ func (ts *tokenService) ReNewToken(token string) (*utils.Token, *int) {
 
 	newToken, err := utils.GenerateJWT(claims.UserID, claims.Data)
 	if err != nil {
-		return nil, &[]int{response.ErrJWTInternalError}[0]
+		return nil, response.ReturnCode(response.ErrJWTInternalError)
 	}
 
 	session := fmt.Sprintf("%v", claims.Data["session"])
 
 	if err := ts.tokenRepo.UpdateRefreshToken(session, newToken.RefreshToken); err != nil {
-		return nil, &[]int{response.ErrJWTInternalError}[0]
+		return nil, response.ReturnCode(response.ErrJWTInternalError)
 	}
 
 	return newToken, nil
 }
 
-func (ts *tokenService) RemoveToken(token string) *int {
+func (ts *tokenService) RemoveToken(token string) *response.ServerCode {
 	if ok := ts.tokenRepo.RemoveToken(token); ok {
-		return &[]int{response.LogoutSuccess}[0]
+		return response.ReturnCode(response.LogoutSuccess)
 	}
-	return &[]int{response.ErrInvalidToken}[0]
+	return response.ReturnCode(response.ErrInvalidToken)
 }

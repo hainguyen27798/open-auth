@@ -6,6 +6,7 @@ import (
 	"github.com/go-open-auth/internal/dto"
 	"github.com/go-open-auth/internal/services"
 	"github.com/go-open-auth/pkg/response"
+	"github.com/go-open-auth/pkg/utils"
 )
 
 type AuthController struct {
@@ -19,24 +20,24 @@ func NewAuthController(authService services.IAuthService) *AuthController {
 }
 
 func (ac *AuthController) Register(c *gin.Context) {
-	var params dto.UserRegistrationRequestDTO
-	if err := c.ShouldBindBodyWithJSON(&params); err != nil {
-		response.ValidateErrorResponse(c, err)
+	params := utils.BodyToDto[dto.UserRegistrationRequestDTO](c)
+
+	if params == nil {
 		return
 	}
 
-	response.MessageResponse(c, ac.authService.Register(params))
+	response.MessageResponse(c, ac.authService.Register(*params).Code())
 }
 
 func (ac *AuthController) Login(c *gin.Context) {
-	var params dto.UserLoginRequestDTO
-	if err := c.ShouldBindBodyWithJSON(&params); err != nil {
-		response.ValidateErrorResponse(c, err)
+	params := utils.BodyToDto[dto.UserLoginRequestDTO](c)
+
+	if params == nil {
 		return
 	}
 
-	if res, errCode := ac.authService.Login(params); errCode != nil {
-		response.MessageResponse(c, *errCode)
+	if res, errCode := ac.authService.Login(*params); errCode != nil {
+		response.MessageResponse(c, errCode.Code())
 	} else {
 		response.OkResponse(c, response.LoginSuccess, *res)
 	}
@@ -47,7 +48,7 @@ func (ac *AuthController) RefreshToken(c *gin.Context) {
 
 	newToken, errCode := ac.authService.RefreshToken(refreshToken)
 	if errCode != nil {
-		response.MessageResponse(c, *errCode)
+		response.MessageResponse(c, errCode.Code())
 	} else {
 		response.OkResponse(c, response.CodeSuccess, newToken)
 	}
@@ -56,5 +57,5 @@ func (ac *AuthController) RefreshToken(c *gin.Context) {
 func (ac *AuthController) Logout(c *gin.Context) {
 	refreshToken := c.GetHeader(global.RefreshTokenKey)
 	code := ac.authService.Logout(refreshToken)
-	response.MessageResponse(c, *code)
+	response.MessageResponse(c, code.Code())
 }
