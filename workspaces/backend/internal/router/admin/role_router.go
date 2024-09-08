@@ -15,5 +15,6 @@ func (rr *RoleRouter) InitRoleRouter(Router *gin.RouterGroup) {
 	roleRouter.Use(middlewares.AuthMiddleware())
 	{
 		roleRouter.POST("", RoleController.Create)
+		roleRouter.GET("", RoleController.GetAll)
 	}
 }

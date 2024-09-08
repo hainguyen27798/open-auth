@@ -25,3 +25,8 @@ func (rc *RoleController) Create(c *gin.Context) {
 	}
 	response.MessageResponse(c, *rc.roleService.CreateNewRole(*payload))
 }
+
+func (rc *RoleController) GetAll(c *gin.Context) {
+	roles := rc.roleService.GetAllRole()
+	response.OkResponse(c, response.CodeSuccess, roles)
+}

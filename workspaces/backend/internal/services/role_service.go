@@ -10,6 +10,7 @@ import (
 
 type IRoleService interface {
 	CreateNewRole(payload dto.RoleRequestDTO) *int
+	GetAllRole() []dto.RoleResponseDTO
 }
 
 type roleService struct {
@@ -22,18 +23,22 @@ func NewRoleService(roleRepo repos.IRoleRepo) IRoleService {
 	}
 }
 
-func (roleService *roleService) CreateNewRole(payload dto.RoleRequestDTO) *int {
+func (rs *roleService) CreateNewRole(payload dto.RoleRequestDTO) *int {
 	payloadRequest, errCode := utils.DtoToModel[db.InsertNewRoleParams](payload)
 
 	if errCode != nil {
 		return errCode
 	}
 
-	err := roleService.roleRepo.CreateNewRole(*payloadRequest)
+	err := rs.roleRepo.CreateNewRole(*payloadRequest)
 
 	if err != nil {
 		return &[]int{response.ErrCreateFailed}[0]
 	}
 
 	return &[]int{response.CreatedSuccess}[0]
+}
+
+func (rs *roleService) GetAllRole() []dto.RoleResponseDTO {
+	return utils.ModelToDtos[dto.RoleResponseDTO](rs.roleRepo.GetAllRoles())
 }
