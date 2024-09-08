@@ -2,3 +2,5 @@ logs
 .idea
 private.pem
 public.pem
+.docker
+tmp

@@ -35,7 +35,7 @@ services:
     backend:
         container_name: open_auth_backend
         build:
-            context: workspaces/backend
+            context: .
             dockerfile: Dockerfile
         environment:
             MODE: prod
