@@ -2,10 +2,12 @@ package services
 
 import (
 	"fmt"
+	"github.com/open-auth/global"
 	"github.com/open-auth/internal/db"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
 	"github.com/open-auth/pkg/utils"
+	"strings"
 )
 
 type ITokenService interface {
@@ -26,11 +28,13 @@ func NewTokenService(tokenRepo repos.ITokenRepo) ITokenService {
 
 func (ts *tokenService) GenerateNewToken(user db.User) (*utils.Token, error) {
 	session := utils.CreateSession(32)
+	scope := global.Scope(strings.ToUpper(string(user.Scope)))
 
-	token, err := utils.GenerateJWT(user.ID, map[string]interface{}{
+	token, err := utils.GenerateJWT(scope, user.ID, map[string]interface{}{
 		"name":    user.Name,
 		"email":   user.Email,
 		"session": session,
+		"scope":   scope,
 	})
 	if err != nil {
 		return nil, err
@@ -57,7 +61,8 @@ func (ts *tokenService) ReNewToken(token string) (*utils.Token, *response.Server
 		return nil, errCode
 	}
 
-	newToken, err := utils.GenerateJWT(claims.UserID, claims.Data)
+	scope := global.Scope(fmt.Sprintf("%v", claims.Data["scope"]))
+	newToken, err := utils.GenerateJWT(scope, claims.UserID, claims.Data)
 	if err != nil {
 		return nil, response.ReturnCode(response.ErrJWTInternalError)
 	}

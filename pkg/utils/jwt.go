@@ -22,7 +22,7 @@ type Token struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-func GenerateJWT(userId string, payloadData map[string]interface{}) (*Token, error) {
+func GenerateJWT(scope global.Scope, userId string, payloadData map[string]interface{}) (*Token, error) {
 	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(os.Getenv(global.TokenPrivateKey)))
 	if err != nil {
 		return nil, err

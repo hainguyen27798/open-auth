@@ -4,6 +4,10 @@ FROM users
 WHERE email = ?
 LIMIT 1;
 
--- name: CreateNewUser :exec
-INSERT INTO users (id, name, email, password, status, social_provider, image, verification_code)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+-- name: InsertNewUser :exec
+INSERT INTO users (id, name, email, password, status, verification_code, scope)
+VALUES (UUID(), ?, ?, ?, 'request', ?, 'user');
+
+-- name: InsertSuperUser :exec
+INSERT INTO users (id, name, email, password, status, scope)
+VALUES (UUID(), 'Admin', ?, ?, 'active', 'admin');

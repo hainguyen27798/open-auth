@@ -8,31 +8,44 @@ import (
 	"fmt"
 	"github.com/open-auth/global"
 	"os"
+	"strings"
 )
 
 var (
-	privateFileName = "private.pem"
-	publicFileName  = "public.pem"
+	privateSuffixFileName = "private.pem"
+	publicSuffixFileName  = "public.pem"
+	folder                = ".secrets"
 )
 
-func GenerateRSA(bits int) {
-	_, err := os.Stat(privateFileName)
+func GenerateRSA(bits int, scope global.Scope) {
+	privateFilePath := fmt.Sprintf("%s/%s_%s", folder, strings.ToLower(string(scope)), privateSuffixFileName)
+	publicFilePath := fmt.Sprintf("%s/%s_%s", folder, strings.ToLower(string(scope)), publicSuffixFileName)
 
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(folder); os.IsNotExist(err) {
+		if err := os.Mkdir(folder, os.ModePerm); err != nil {
+			panic(err)
+			return
+		}
+	}
+
+	if _, err := os.Stat(privateFilePath); os.IsNotExist(err) {
 		privateKey, err := rsa.GenerateKey(rand.Reader, bits)
 		if err != nil {
 			panic(err)
+			return
 		}
 
 		// Save the private key
-		privateFile, err := os.Create(privateFileName)
+		privateFile, err := os.Create(privateFilePath)
 		if err != nil {
 			panic(err)
+			return
 		}
 		defer func(privateFile *os.File) {
 			err := privateFile.Close()
 			if err != nil {
 				panic(err)
+				return
 			}
 		}(privateFile)
 
@@ -43,23 +56,27 @@ func GenerateRSA(bits int) {
 		}
 		if err := pem.Encode(privateFile, &privatePem); err != nil {
 			panic(err)
+			return
 		}
 
 		// Save the public key
-		publicFile, err := os.Create(publicFileName)
+		publicFile, err := os.Create(publicFilePath)
 		if err != nil {
 			panic(err)
+			return
 		}
 		defer func(publicFile *os.File) {
 			err := publicFile.Close()
 			if err != nil {
 				panic(err)
+				return
 			}
 		}(publicFile)
 
 		publicBytes, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
 		if err != nil {
 			panic(err)
+			return
 		}
 
 		publicPem := pem.Block{
@@ -68,26 +85,33 @@ func GenerateRSA(bits int) {
 		}
 		if err := pem.Encode(publicFile, &publicPem); err != nil {
 			panic(err)
+			return
 		}
 
 		fmt.Println("generate rsa")
 	}
 
-	privateKey, err := os.ReadFile(privateFileName)
+	privateKey, err := os.ReadFile(privateFilePath)
 	if err != nil {
 		panic(err)
+		return
 	}
 
-	publicKey, err := os.ReadFile(publicFileName)
+	publicKey, err := os.ReadFile(publicFilePath)
 	if err != nil {
 		panic(err)
+		return
 	}
 
-	if err := os.Setenv(global.TokenPrivateKey, string(privateKey)); err != nil {
+	tokenPrivateKey := fmt.Sprintf("%s_%s", scope, global.TokenPrivateKey)
+	if err := os.Setenv(tokenPrivateKey, string(privateKey)); err != nil {
 		panic(err)
+		return
 	}
 
-	if err := os.Setenv(global.TokenPublicKey, string(publicKey)); err != nil {
+	tokenPublicKey := fmt.Sprintf("%s_%s", scope, global.TokenPublicKey)
+	if err := os.Setenv(tokenPublicKey, string(publicKey)); err != nil {
 		panic(err)
+		return
 	}
 }

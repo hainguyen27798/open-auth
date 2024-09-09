@@ -10,38 +10,8 @@ import (
 	"database/sql"
 )
 
-const createNewUser = `-- name: CreateNewUser :exec
-INSERT INTO users (id, name, email, password, status, social_provider, image, verification_code)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-`
-
-type CreateNewUserParams struct {
-	ID               string
-	Name             string
-	Email            string
-	Password         sql.NullString
-	Status           UsersStatus
-	SocialProvider   NullUsersSocialProvider
-	Image            sql.NullString
-	VerificationCode sql.NullString
-}
-
-func (q *Queries) CreateNewUser(ctx context.Context, arg CreateNewUserParams) error {
-	_, err := q.db.ExecContext(ctx, createNewUser,
-		arg.ID,
-		arg.Name,
-		arg.Email,
-		arg.Password,
-		arg.Status,
-		arg.SocialProvider,
-		arg.Image,
-		arg.VerificationCode,
-	)
-	return err
-}
-
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, created_at, updated_at, name, email, password, status, social_provider, image, verify, verification_code, role_id
+SELECT id, created_at, updated_at, name, email, password, status, social_provider, image, verify, verification_code, role_id, scope
 FROM users
 WHERE email = ?
 LIMIT 1
@@ -63,6 +33,44 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Verify,
 		&i.VerificationCode,
 		&i.RoleID,
+		&i.Scope,
 	)
 	return i, err
+}
+
+const insertNewUser = `-- name: InsertNewUser :exec
+INSERT INTO users (id, name, email, password, status, verification_code, scope)
+VALUES (UUID(), ?, ?, ?, 'request', ?, 'user')
+`
+
+type InsertNewUserParams struct {
+	Name             string
+	Email            string
+	Password         sql.NullString
+	VerificationCode sql.NullString
+}
+
+func (q *Queries) InsertNewUser(ctx context.Context, arg InsertNewUserParams) error {
+	_, err := q.db.ExecContext(ctx, insertNewUser,
+		arg.Name,
+		arg.Email,
+		arg.Password,
+		arg.VerificationCode,
+	)
+	return err
+}
+
+const insertSuperUser = `-- name: InsertSuperUser :exec
+INSERT INTO users (id, name, email, password, status, scope)
+VALUES (UUID(), 'Admin', ?, ?, 'active', 'admin')
+`
+
+type InsertSuperUserParams struct {
+	Email    string
+	Password sql.NullString
+}
+
+func (q *Queries) InsertSuperUser(ctx context.Context, arg InsertSuperUserParams) error {
+	_, err := q.db.ExecContext(ctx, insertSuperUser, arg.Email, arg.Password)
+	return err
 }

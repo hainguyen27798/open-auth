@@ -1,7 +1,9 @@
 package services
 
 import (
+	"database/sql"
 	"github.com/open-auth/global"
+	"github.com/open-auth/internal/db"
 	"github.com/open-auth/internal/dto"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
@@ -48,14 +50,23 @@ func (as *authService) Register(user dto.UserRegistrationRequestDTO) *response.S
 	}
 
 	// create user
-	hash, err := utils.HashPassword(user.Password)
+	hash, err := utils.HashPassword(*user.Password)
 	if err != nil {
 		global.Logger.Error(err.Error())
 		return response.ReturnCode(response.ErrCreateFailed)
 	}
 
-	user.Password = hash
-	if err := as.userRepo.CreateNewUser(user, strconv.Itoa(otp)); err != nil {
+	user.Password = &hash
+	payload, errCode := utils.DtoToModel[db.InsertNewUserParams](user)
+	payload.VerificationCode = sql.NullString{
+		String: strconv.Itoa(otp),
+		Valid:  true,
+	}
+	if errCode != nil {
+		return errCode
+	}
+
+	if err := as.userRepo.CreateNewUser(*payload); err != nil {
 		global.Logger.Error(err.Error())
 		return response.ReturnCode(response.ErrCreateFailed)
 	}
