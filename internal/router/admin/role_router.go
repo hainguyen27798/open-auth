@@ -2,6 +2,7 @@ package admin
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/open-auth/global"
 	"github.com/open-auth/internal/middlewares"
 	"github.com/open-auth/internal/wires"
 )
@@ -12,7 +13,7 @@ func (rr *RoleRouter) InitRoleRouter(Router *gin.RouterGroup) {
 	RoleController, _ := wires.InitRoleRouterHandler()
 
 	roleRouter := Router.Group("roles")
-	roleRouter.Use(middlewares.AuthMiddleware())
+	roleRouter.Use(middlewares.AuthMiddleware(global.AdminScope))
 	{
 		roleRouter.POST("", RoleController.Create)
 		roleRouter.GET("", RoleController.GetAll)

@@ -12,7 +12,8 @@ type IUserRepo interface {
 	CreateNewUser(userDto db.InsertNewUserParams) error
 	CreateSuperUser(adminDto db.InsertSuperUserParams) error
 	GetUsers() []string
-	GetUserById(email string) (*db.User, error)
+	GetUserByEmail(email string) (*db.User, error)
+	GetUserByEmailAndScope(email string, scope db.UsersScope) (*db.User, error)
 }
 
 type userRepo struct {
@@ -43,8 +44,21 @@ func (ur *userRepo) CreateSuperUser(payload db.InsertSuperUserParams) error {
 	return ur.sqlC.InsertSuperUser(ctx, payload)
 }
 
-func (ur *userRepo) GetUserById(email string) (*db.User, error) {
+func (ur *userRepo) GetUserByEmail(email string) (*db.User, error) {
 	user, err := ur.sqlC.GetUserByEmail(ctx, email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (ur *userRepo) GetUserByEmailAndScope(email string, scope db.UsersScope) (*db.User, error) {
+	user, err := ur.sqlC.GetUserByEmailAndScope(ctx, db.GetUserByEmailAndScopeParams{
+		Email: email,
+		Scope: scope,
+	})
 
 	if err != nil {
 		return nil, err

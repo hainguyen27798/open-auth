@@ -2,6 +2,7 @@ package admin
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/open-auth/global"
 	"github.com/open-auth/internal/middlewares"
 	"github.com/open-auth/internal/wires"
 )
@@ -12,7 +13,7 @@ func (pr *PermissionRouter) InitPermissionRouter(Router *gin.RouterGroup) {
 	permissionController, _ := wires.InitPermissionRouterHandler()
 
 	permissionRouter := Router.Group("permissions")
-	permissionRouter.Use(middlewares.AuthMiddleware())
+	permissionRouter.Use(middlewares.AuthMiddleware(global.AdminScope))
 	{
 		permissionRouter.POST("", permissionController.Create)
 		permissionRouter.GET("", permissionController.GetAll)

@@ -12,7 +12,7 @@ import (
 
 type ITokenService interface {
 	GenerateNewToken(user db.User) (*utils.Token, error)
-	ReNewToken(token string) (*utils.Token, *response.ServerCode)
+	ReNewToken(scope global.Scope, token string) (*utils.Token, *response.ServerCode)
 	RemoveToken(token string) *response.ServerCode
 }
 
@@ -51,17 +51,16 @@ func (ts *tokenService) GenerateNewToken(user db.User) (*utils.Token, error) {
 	return token, nil
 }
 
-func (ts *tokenService) ReNewToken(token string) (*utils.Token, *response.ServerCode) {
+func (ts *tokenService) ReNewToken(scope global.Scope, token string) (*utils.Token, *response.ServerCode) {
 	if ts.tokenRepo.CheckOldRefreshTokenExists(token) {
 		return nil, response.ReturnCode(response.ErrStolenToken)
 	}
 
-	claims, errCode := utils.VerifyJWT(token)
+	claims, errCode := utils.VerifyJWT(scope, token)
 	if errCode != nil {
 		return nil, errCode
 	}
 
-	scope := global.Scope(fmt.Sprintf("%v", claims.Data["scope"]))
 	newToken, err := utils.GenerateJWT(scope, claims.UserID, claims.Data)
 	if err != nil {
 		return nil, response.ReturnCode(response.ErrJWTInternalError)

@@ -38,6 +38,39 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	return i, err
 }
 
+const getUserByEmailAndScope = `-- name: GetUserByEmailAndScope :one
+SELECT id, created_at, updated_at, name, email, password, status, social_provider, image, verify, verification_code, role_id, scope
+FROM users
+WHERE email = ? and scope = ?
+LIMIT 1
+`
+
+type GetUserByEmailAndScopeParams struct {
+	Email string
+	Scope UsersScope
+}
+
+func (q *Queries) GetUserByEmailAndScope(ctx context.Context, arg GetUserByEmailAndScopeParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmailAndScope, arg.Email, arg.Scope)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.Status,
+		&i.SocialProvider,
+		&i.Image,
+		&i.Verify,
+		&i.VerificationCode,
+		&i.RoleID,
+		&i.Scope,
+	)
+	return i, err
+}
+
 const insertNewUser = `-- name: InsertNewUser :exec
 INSERT INTO users (id, name, email, password, status, verification_code, scope)
 VALUES (UUID(), ?, ?, ?, 'request', ?, 'user')

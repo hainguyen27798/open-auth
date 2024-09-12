@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/rsa"
 	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/open-auth/global"
 	"github.com/open-auth/pkg/response"
@@ -23,7 +24,8 @@ type Token struct {
 }
 
 func GenerateJWT(scope global.Scope, userId string, payloadData map[string]interface{}) (*Token, error) {
-	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(os.Getenv(global.TokenPrivateKey)))
+	tokenPrivateKey := fmt.Sprintf("%s_%s", scope, global.TokenPrivateKey)
+	privateKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(os.Getenv(tokenPrivateKey)))
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +46,9 @@ func GenerateJWT(scope global.Scope, userId string, payloadData map[string]inter
 	}, nil
 }
 
-func VerifyJWT(tokenString string) (*TokenClaims, *response.ServerCode) {
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(os.Getenv(global.TokenPublicKey)))
+func VerifyJWT(scope global.Scope, tokenString string) (*TokenClaims, *response.ServerCode) {
+	tokenPublicKey := fmt.Sprintf("%s_%s", scope, global.TokenPublicKey)
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM([]byte(os.Getenv(tokenPublicKey)))
 	if err != nil {
 		global.Logger.Error("parse token public key failed", zap.Error(err))
 		return nil, response.ReturnCode(response.ErrInvalidToken)
@@ -88,4 +91,19 @@ func generateToken(userId string, payloadData map[string]interface{}, duration t
 	}
 
 	return tokenString, nil
+}
+
+func GetValueFromToken(tokenString string, key string) (*string, error) {
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenString, &TokenClaims{})
+	if err != nil {
+		global.Logger.Error("parse token failed", zap.Error(err))
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*TokenClaims); ok {
+		value := claims.Data[key].(string)
+		return &value, nil
+	}
+
+	return nil, errors.New("invalid token")
 }
