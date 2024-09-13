@@ -36,7 +36,21 @@ func (ac *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	if res, errCode := ac.authService.Login(*params); errCode != nil {
+	if res, errCode := ac.authService.Login(*params, global.UserScope); errCode != nil {
+		response.MessageResponse(c, errCode.Code())
+	} else {
+		response.OkResponse(c, response.LoginSuccess, *res)
+	}
+}
+
+func (ac *AuthController) LoginAdmin(c *gin.Context) {
+	params := utils.BodyToDto[dto.UserLoginRequestDTO](c)
+
+	if params == nil {
+		return
+	}
+
+	if res, errCode := ac.authService.Login(*params, global.AdminScope); errCode != nil {
 		response.MessageResponse(c, errCode.Code())
 	} else {
 		response.OkResponse(c, response.LoginSuccess, *res)
@@ -46,7 +60,15 @@ func (ac *AuthController) Login(c *gin.Context) {
 func (ac *AuthController) RefreshToken(c *gin.Context) {
 	refreshToken := c.GetHeader(global.RefreshTokenKey)
 
-	newToken, errCode := ac.authService.RefreshToken(refreshToken)
+	tokenScope, err := utils.GetValueFromToken(refreshToken, "scope")
+	currentScope := global.Scope(*tokenScope)
+	if err != nil {
+		response.MessageResponse(c, response.ErrInvalidToken)
+		c.Abort()
+		return
+	}
+
+	newToken, errCode := ac.authService.RefreshToken(currentScope, refreshToken)
 	if errCode != nil {
 		response.MessageResponse(c, errCode.Code())
 	} else {

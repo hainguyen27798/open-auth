@@ -10,6 +10,7 @@ func Run() {
 	InitLogger()
 	InitMysql()
 	InitRedis()
+	SetupAdmin()
 
 	r := InitRouter()
 	err := r.Run(fmt.Sprintf(":%d", global.Config.Server.Port))

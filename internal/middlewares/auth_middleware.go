@@ -5,10 +5,11 @@ import (
 	"github.com/open-auth/global"
 	"github.com/open-auth/pkg/response"
 	"github.com/open-auth/pkg/utils"
+	"golang.org/x/exp/slices"
 	"strings"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(scopes ...global.Scope) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader(global.BearerTokenKey)
 		bearerToken := strings.Split(token, " ")
@@ -19,7 +20,21 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims, errCode := utils.VerifyJWT(bearerToken[1])
+		tokenScope, err := utils.GetValueFromToken(bearerToken[1], "scope")
+		currentScope := global.Scope(*tokenScope)
+		if err != nil {
+			response.MessageResponse(c, response.ErrInvalidToken)
+			c.Abort()
+			return
+		}
+
+		if slices.Contains(scopes, currentScope) == false {
+			response.MessageResponse(c, response.ErrUnauthorized)
+			c.Abort()
+			return
+		}
+
+		claims, errCode := utils.VerifyJWT(currentScope, bearerToken[1])
 
 		if errCode != nil {
 			response.MessageResponse(c, errCode.Code())

@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+type Scope string
+
+const (
+	UserScope  Scope = "USER"
+	AdminScope Scope = "ADMIN"
+)
+
 const (
 	TokenPrivateKey    string = "PRIVATE_KEY"
 	TokenPublicKey     string = "PUBLIC_KEY"

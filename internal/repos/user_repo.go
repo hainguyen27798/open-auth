@@ -3,17 +3,17 @@ package repos
 import (
 	"database/sql"
 	"errors"
-	"github.com/google/uuid"
 	"github.com/open-auth/global"
 	"github.com/open-auth/internal/db"
-	"github.com/open-auth/internal/dto"
 )
 
 type IUserRepo interface {
 	CheckUserByEmail(email string) bool
-	CreateNewUser(userDto dto.UserRegistrationRequestDTO, code string) error
+	CreateNewUser(userDto db.InsertNewUserParams) error
+	CreateSuperUser(adminDto db.InsertSuperUserParams) error
 	GetUsers() []string
-	GetUserById(email string) (*db.User, error)
+	GetUserByEmail(email string) (*db.User, error)
+	GetUserByEmailAndScope(email string, scope db.UsersScope) (*db.User, error)
 }
 
 type userRepo struct {
@@ -36,21 +36,29 @@ func (ur *userRepo) CheckUserByEmail(email string) bool {
 	return !errors.Is(err, sql.ErrNoRows)
 }
 
-func (ur *userRepo) CreateNewUser(userDto dto.UserRegistrationRequestDTO, code string) error {
-	return ur.sqlC.CreateNewUser(ctx, db.CreateNewUserParams{
-		ID:               uuid.New().String(),
-		Name:             userDto.Name,
-		Email:            userDto.Email,
-		Password:         sql.NullString{String: userDto.Password, Valid: true},
-		Status:           db.UsersStatusRequest,
-		SocialProvider:   db.NullUsersSocialProvider{},
-		Image:            sql.NullString{},
-		VerificationCode: sql.NullString{String: code, Valid: true},
-	})
+func (ur *userRepo) CreateNewUser(payload db.InsertNewUserParams) error {
+	return ur.sqlC.InsertNewUser(ctx, payload)
 }
 
-func (ur *userRepo) GetUserById(email string) (*db.User, error) {
+func (ur *userRepo) CreateSuperUser(payload db.InsertSuperUserParams) error {
+	return ur.sqlC.InsertSuperUser(ctx, payload)
+}
+
+func (ur *userRepo) GetUserByEmail(email string) (*db.User, error) {
 	user, err := ur.sqlC.GetUserByEmail(ctx, email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (ur *userRepo) GetUserByEmailAndScope(email string, scope db.UsersScope) (*db.User, error) {
+	user, err := ur.sqlC.GetUserByEmailAndScope(ctx, db.GetUserByEmailAndScopeParams{
+		Email: email,
+		Scope: scope,
+	})
 
 	if err != nil {
 		return nil, err

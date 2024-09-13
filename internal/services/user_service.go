@@ -21,7 +21,7 @@ func NewUserService(userRepo repos.IUserRepo) IUserService {
 }
 
 func (us *userService) GetMe(email string) (*db.User, *response.ServerCode) {
-	user, err := us.userRepo.GetUserById(email)
+	user, err := us.userRepo.GetUserByEmail(email)
 
 	if err != nil {
 		return nil, response.ReturnCode(response.ErrNotFound)

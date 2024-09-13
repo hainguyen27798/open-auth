@@ -15,6 +15,7 @@ func (authenticateRouter *AuthenticateRouter) InitAuthenticateRouter(Router *gin
 	{
 		authenticateRouterPublic.POST("/register", authController.Register)
 		authenticateRouterPublic.POST("/login", authController.Login)
+		authenticateRouterPublic.POST("/login-admin", authController.LoginAdmin)
 		authenticateRouterPublic.POST("/refresh-token", authController.RefreshToken)
 		authenticateRouterPublic.POST("/logout", authController.Logout)
 	}

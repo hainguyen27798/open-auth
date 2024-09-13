@@ -11,6 +11,48 @@ import (
 	"time"
 )
 
+type UsersScope string
+
+const (
+	UsersScopeUser  UsersScope = "user"
+	UsersScopeAdmin UsersScope = "admin"
+)
+
+func (e *UsersScope) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = UsersScope(s)
+	case string:
+		*e = UsersScope(s)
+	default:
+		return fmt.Errorf("unsupported scan type for UsersScope: %T", src)
+	}
+	return nil
+}
+
+type NullUsersScope struct {
+	UsersScope UsersScope
+	Valid      bool // Valid is true if UsersScope is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullUsersScope) Scan(value interface{}) error {
+	if value == nil {
+		ns.UsersScope, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.UsersScope.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullUsersScope) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.UsersScope), nil
+}
+
 type UsersSocialProvider string
 
 const (
@@ -151,4 +193,5 @@ type User struct {
 	Verify           int8
 	VerificationCode sql.NullString
 	RoleID           sql.NullString
+	Scope            UsersScope
 }
