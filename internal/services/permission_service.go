@@ -12,7 +12,7 @@ import (
 
 type IPermissionService interface {
 	CreateNewPermission(payload dto.PermissionRequestDTO) *response.ServerCode
-	GetAllPermissions() []dto.PermissionResponseDTO
+	GetAllPermissions(payload dto.SearchDTO) []dto.PermissionResponseDTO
 	UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *response.ServerCode
 	DeletePermission(id string) *response.ServerCode
 }
@@ -44,8 +44,8 @@ func (ps *permissionService) CreateNewPermission(payload dto.PermissionRequestDT
 	return response.ReturnCode(response.CreatedSuccess)
 }
 
-func (ps *permissionService) GetAllPermissions() []dto.PermissionResponseDTO {
-	return utils.ModelToDtos[dto.PermissionResponseDTO](ps.permissionRepo.GetAllPermission())
+func (ps *permissionService) GetAllPermissions(payload dto.SearchDTO) []dto.PermissionResponseDTO {
+	return utils.ModelToDtos[dto.PermissionResponseDTO](ps.permissionRepo.GetAllPermission(payload.Search, payload.By))
 }
 
 func (ps *permissionService) UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *response.ServerCode {

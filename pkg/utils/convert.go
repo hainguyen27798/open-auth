@@ -56,6 +56,16 @@ func BodyToDto[T any](c *gin.Context) *T {
 	return dto
 }
 
+func QueryToDto[T any](c *gin.Context) T {
+	var dto T
+	if err := c.ShouldBindQuery(&dto); err != nil {
+		global.Logger.Error("convert to dto failed", zap.Error(err))
+		response.ValidateErrorResponse(c, err)
+		c.Abort()
+	}
+	return dto
+}
+
 func DtoToModel[MT any, T any](dto T) (*MT, *response.ServerCode) {
 	dtoType := reflect.TypeOf(dto)
 	dtoValue := reflect.ValueOf(dto)
