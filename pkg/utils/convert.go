@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/open-auth/global"
+	"github.com/open-auth/internal/dto"
 	"github.com/open-auth/pkg/response"
 	"go.uber.org/zap"
 	"reflect"
@@ -14,8 +15,8 @@ func ModelToDto[T any, MT any](model MT) *T {
 	modelType := reflect.TypeOf(model)
 	modelValue := reflect.ValueOf(model)
 	plain := make(map[string]interface{})
-	var dto T
-	dtoType := reflect.TypeOf(dto)
+	var payload T
+	dtoType := reflect.TypeOf(payload)
 
 	for i := 0; i < modelType.NumField(); i++ {
 		fieldType := modelType.Field(i)
@@ -30,12 +31,12 @@ func ModelToDto[T any, MT any](model MT) *T {
 	}
 
 	bytes, _ := json.Marshal(plain)
-	err := json.Unmarshal(bytes, &dto)
+	err := json.Unmarshal(bytes, &payload)
 	if err != nil {
 		global.Logger.Error("convert to dto failed", zap.Error(err))
 		return nil
 	}
-	return &dto
+	return &payload
 }
 
 func ModelToDtos[T any, MT any](models []MT) []T {
@@ -46,24 +47,32 @@ func ModelToDtos[T any, MT any](models []MT) []T {
 	return list
 }
 
+func ModelToPaginationDto[T any, MT any](models []MT, metaData dto.PaginationMetaDataDto) dto.PaginationDto[T] {
+	list := ModelToDtos[T, MT](models)
+	return dto.PaginationDto[T]{
+		Data:     list,
+		MetaData: metaData,
+	}
+}
+
 func BodyToDto[T any](c *gin.Context) *T {
-	var dto *T
-	if err := c.ShouldBindBodyWithJSON(&dto); err != nil {
+	var payload *T
+	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
 		response.ValidateErrorResponse(c, err)
 		c.Abort()
 		return nil
 	}
-	return dto
+	return payload
 }
 
 func QueryToDto[T any](c *gin.Context) T {
-	var dto T
-	if err := c.ShouldBindQuery(&dto); err != nil {
+	var payload T
+	if err := c.ShouldBindQuery(&payload); err != nil {
 		global.Logger.Error("convert to dto failed", zap.Error(err))
 		response.ValidateErrorResponse(c, err)
 		c.Abort()
 	}
-	return dto
+	return payload
 }
 
 func DtoToModel[MT any, T any](dto T) (*MT, *response.ServerCode) {

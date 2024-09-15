@@ -6,7 +6,7 @@ type RoleRequestDTO struct {
 }
 
 type RoleResponseDTO struct {
-	DefaultDto
+	DefaultDTO
 	Name        string `json:"name"`
 	Description string `json:"description" nested:"String"`
 }

@@ -11,7 +11,7 @@ import (
 
 type IPermissionRepo interface {
 	CreateNewPermission(payload db.InsertNewPermissionParams) error
-	GetAllPermission(search string, by string) []models.Permission
+	GetAllPermission(search string, by string, skip int, limit int) ([]models.Permission, int64)
 	UpdatePermission(permission db.UpdatePermissionParams) (bool, error)
 	DeletePermission(id string) bool
 }
@@ -32,20 +32,29 @@ func (pr *permissionRepo) CreateNewPermission(payload db.InsertNewPermissionPara
 	return pr.sqlC.InsertNewPermission(ctx, payload)
 }
 
-func (pr *permissionRepo) GetAllPermission(search string, by string) []models.Permission {
+func (pr *permissionRepo) GetAllPermission(search string, by string, skip int, limit int) ([]models.Permission, int64) {
 	var permission []models.Permission
+	var total int64
 	query := sql.GetAllPermissionsBy[by]
-	search += "%"
+	queryCount := sql.CountPermissionSearchBy[by]
+	search = "%" + search + "%"
 
-	if search != "" {
+	if query == "" {
 		query = sql.GetAllPermissionsBy["service_name"]
+		queryCount = sql.CountPermissionSearchBy["service_name"]
 	}
 
-	if err := pr.sqlX.Select(&permission, query, search); err != nil {
+	if err := pr.sqlX.Select(&permission, query, search, limit, skip); err != nil {
 		global.Logger.Error("GetAllPermission: ", zap.Error(err))
-		return []models.Permission{}
+		return []models.Permission{}, 0
 	}
-	return permission
+
+	if err := pr.sqlX.Get(&total, queryCount, search); err != nil {
+		global.Logger.Error("CountPermission: ", zap.Error(err))
+		return []models.Permission{}, 0
+	}
+
+	return permission, total
 }
 
 func (pr *permissionRepo) UpdatePermission(permission db.UpdatePermissionParams) (bool, error) {
