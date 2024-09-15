@@ -9,7 +9,7 @@ type PermissionRequestDTO struct {
 }
 
 type PermissionResponseDTO struct {
-	DefaultDto
+	DefaultDTO
 	ServiceName string `json:"serviceName"`
 	Action      string `json:"action"`
 	Resource    string `json:"resource"`

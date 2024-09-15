@@ -1,7 +1,7 @@
 package dto
 
 type UserResponseDTO struct {
-	DefaultDto
+	DefaultDTO
 	Name           string `json:"name"`
 	Email          string `json:"email"`
 	Status         string `json:"status"`

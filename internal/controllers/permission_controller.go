@@ -27,7 +27,8 @@ func (ps *PermissionController) Create(c *gin.Context) {
 }
 
 func (ps *PermissionController) GetAll(c *gin.Context) {
-	permission := ps.permissionService.GetAllPermissions()
+	query := utils.QueryToDto[dto.SearchDTO](c)
+	permission := ps.permissionService.GetAllPermissions(query)
 	response.OkResponse(c, response.CodeSuccess, permission)
 }
 

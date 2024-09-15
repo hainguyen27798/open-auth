@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/open-auth/global"
 	"github.com/pressly/goose/v3"
 	"go.uber.org/zap"
@@ -37,22 +38,21 @@ func InitMysql() {
 	global.Logger.Info("Initializing mysql successfully")
 	global.Mdb = db
 
-	setPool()
-	migrateTables()
+	setPool(db)
+	migrateTables(db)
+
+	global.MdbX = sqlx.NewDb(db, "mysql")
 }
 
-func setPool() {
+func setPool(db *sql.DB) {
 	config := global.Config.Mysql
-	sqlDB := global.Mdb
 
-	sqlDB.SetConnMaxIdleTime(time.Duration(config.MaxIdleConn))
-	sqlDB.SetMaxOpenConns(config.MaxOpenConn)
-	sqlDB.SetConnMaxLifetime(time.Duration(config.ConnMaxLifeTime))
+	db.SetConnMaxIdleTime(time.Duration(config.MaxIdleConn))
+	db.SetMaxOpenConns(config.MaxOpenConn)
+	db.SetConnMaxLifetime(time.Duration(config.ConnMaxLifeTime))
 }
 
-func migrateTables() {
-	db := global.Mdb
-
+func migrateTables(db *sql.DB) {
 	if err := goose.SetDialect("mysql"); err != nil {
 		CheckErrorPanic(err, "Init mysql failed")
 	}
