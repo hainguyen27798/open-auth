@@ -3,12 +3,14 @@ package utils
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/open-auth/global"
 	"github.com/open-auth/internal/dto"
 	"github.com/open-auth/pkg/response"
 	"go.uber.org/zap"
 	"reflect"
+	"strings"
 )
 
 func ModelToDto[T any, MT any](model MT) *T {
@@ -107,4 +109,21 @@ func DtoToModel[MT any, T any](dto T) (*MT, *response.ServerCode) {
 	}
 
 	return &model, nil
+}
+
+func PartialUpdate[T any](payload T) string {
+	payloadValue := reflect.ValueOf(payload)
+	payloadType := reflect.TypeOf(payload)
+	var arr []string
+	for i := 0; i < payloadType.NumField(); i++ {
+		field := payloadType.Field(i)
+		fieldName := field.Name
+		payloadFieldValue := payloadValue.FieldByName(fieldName)
+		dbName := field.Tag.Get("db")
+		attrName := field.Tag.Get("attr")
+		if payloadFieldValue.IsNil() != true && attrName != "" {
+			arr = append(arr, fmt.Sprintf("%s = :%s", attrName, dbName))
+		}
+	}
+	return strings.Join(arr, ", ")
 }

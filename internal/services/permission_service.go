@@ -1,10 +1,9 @@
 package services
 
 import (
-	"database/sql"
 	"github.com/open-auth/global"
-	"github.com/open-auth/internal/db"
 	"github.com/open-auth/internal/dto"
+	"github.com/open-auth/internal/models"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
 	"github.com/open-auth/pkg/utils"
@@ -28,19 +27,17 @@ func NewPermissionService(permissionRepo repos.IPermissionRepo) IPermissionServi
 }
 
 func (ps *permissionService) CreateNewPermission(payload dto.PermissionRequestDTO) *response.ServerCode {
-	err := ps.permissionRepo.CreateNewPermission(db.InsertNewPermissionParams{
-		ServiceName: payload.ServiceName,
-		Resource:    payload.Resource,
-		Action:      payload.Action,
-		Attributes:  payload.Attributes,
-		Description: sql.NullString{
-			String: payload.Description,
-		},
-	})
-	if err != nil {
+	newPayload, errCode := utils.DtoToModel[models.InsertNewPermissionParams](payload)
+
+	if errCode != nil {
+		return errCode
+	}
+
+	if err := ps.permissionRepo.CreateNewPermission(*newPayload); err != nil {
 		global.Logger.Error(err.Error())
 		return response.ReturnCode(response.ErrCreateFailed)
 	}
+
 	return response.ReturnCode(response.CreatedSuccess)
 }
 
@@ -60,14 +57,13 @@ func (ps *permissionService) GetAllPermissions(payload dto.SearchDTO) dto.Pagina
 }
 
 func (ps *permissionService) UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *response.ServerCode {
-	updatePayloadDto, errCode := utils.DtoToModel[db.UpdatePermissionParams](payload)
-	updatePayloadDto.ID = id
-
+	updatePayload, errCode := utils.DtoToModel[models.UpdatePermissionParams](payload)
 	if errCode != nil {
 		return errCode
 	}
 
-	ok, err := ps.permissionRepo.UpdatePermission(*updatePayloadDto)
+	updatePayload.ID = &id
+	ok, err := ps.permissionRepo.UpdatePermission(*updatePayload)
 	if err != nil {
 		global.Logger.Error(err.Error())
 		return response.ReturnCode(response.ErrBadRequest)
