@@ -1,10 +1,9 @@
 package services
 
 import (
-	"database/sql"
 	"github.com/open-auth/global"
-	"github.com/open-auth/internal/db"
 	"github.com/open-auth/internal/dto"
+	"github.com/open-auth/internal/models"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
 	"github.com/open-auth/pkg/utils"
@@ -51,18 +50,15 @@ func (as *authService) Register(user dto.UserRegistrationRequestDTO) *response.S
 	}
 
 	// create user
-	hash, err := utils.HashPassword(*user.Password)
+	hash, err := utils.HashPassword(user.Password)
 	if err != nil {
 		global.Logger.Error(err.Error())
 		return response.ReturnCode(response.ErrCreateFailed)
 	}
 
-	user.Password = &hash
-	payload, errCode := utils.DtoToModel[db.InsertNewUserParams](user)
-	payload.VerificationCode = sql.NullString{
-		String: strconv.Itoa(otp),
-		Valid:  true,
-	}
+	user.Password = hash
+	payload, errCode := utils.DtoToModel[models.InsertNewUserParams](user)
+	payload.VerificationCode = strconv.Itoa(otp)
 	if errCode != nil {
 		return errCode
 	}
@@ -87,7 +83,7 @@ func (as *authService) Register(user dto.UserRegistrationRequestDTO) *response.S
 }
 
 func (as *authService) Login(user dto.UserLoginRequestDTO, scope global.Scope) (*dto.UserLoginResponseDTO, *response.ServerCode) {
-	userExisting, err := as.userRepo.GetUserByEmailAndScope(user.Email, db.UsersScope(strings.ToLower(string(scope))))
+	userExisting, err := as.userRepo.GetUserByEmailAndScope(user.Email, models.UsersScope(strings.ToLower(string(scope))))
 	if err != nil {
 		return nil, response.ReturnCode(response.ErrCodeUserNotExists)
 	}

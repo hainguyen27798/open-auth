@@ -1,28 +1,29 @@
 package repos
 
 import (
-	"database/sql"
-	"errors"
+	"github.com/jmoiron/sqlx"
 	"github.com/open-auth/global"
-	"github.com/open-auth/internal/db"
+	"github.com/open-auth/internal/models"
+	"github.com/open-auth/internal/query"
+	"github.com/open-auth/pkg/utils"
 )
 
 type IUserRepo interface {
 	CheckUserByEmail(email string) bool
-	CreateNewUser(userDto db.InsertNewUserParams) error
-	CreateSuperUser(adminDto db.InsertSuperUserParams) error
+	CreateNewUser(userDto models.InsertNewUserParams) error
+	CreateSuperUser(adminDto models.InsertSuperUserParams) error
 	GetUsers() []string
-	GetUserByEmail(email string) (*db.User, error)
-	GetUserByEmailAndScope(email string, scope db.UsersScope) (*db.User, error)
+	GetUserByEmail(email string) (*models.User, error)
+	GetUserByEmailAndScope(email string, scope models.UsersScope) (*models.User, error)
 }
 
 type userRepo struct {
-	sqlC *db.Queries
+	sqlX *sqlx.DB
 }
 
 func NewUserRepo() IUserRepo {
 	return &userRepo{
-		sqlC: db.New(global.Mdb),
+		sqlX: global.MdbX,
 	}
 }
 
@@ -31,36 +32,51 @@ func (ur *userRepo) GetUsers() []string {
 }
 
 func (ur *userRepo) CheckUserByEmail(email string) bool {
-	_, err := ur.sqlC.GetUserByEmail(ctx, email)
-
-	return !errors.Is(err, sql.ErrNoRows)
+	var exists bool
+	if err := ur.sqlX.Get(&exists, query.CheckUserByEmail, email); err != nil {
+		return false
+	}
+	return exists
 }
 
-func (ur *userRepo) CreateNewUser(payload db.InsertNewUserParams) error {
-	return ur.sqlC.InsertNewUser(ctx, payload)
-}
-
-func (ur *userRepo) CreateSuperUser(payload db.InsertSuperUserParams) error {
-	return ur.sqlC.InsertSuperUser(ctx, payload)
-}
-
-func (ur *userRepo) GetUserByEmail(email string) (*db.User, error) {
-	user, err := ur.sqlC.GetUserByEmail(ctx, email)
-
+func (ur *userRepo) CreateNewUser(payload models.InsertNewUserParams) error {
+	session, err := utils.NewTransaction(ur.sqlX)
 	if err != nil {
+		return err
+	}
+
+	if _, err := session.NamedExec(query.InsertBasicUser, payload); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ur *userRepo) CreateSuperUser(payload models.InsertSuperUserParams) error {
+	session, err := utils.NewTransaction(ur.sqlX)
+	if err != nil {
+		return err
+	}
+
+	if _, err := session.NamedExec(query.InsertSuperuser, payload); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ur *userRepo) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+
+	if err := ur.sqlX.Get(&user, query.GetUserByEmail, email); err != nil {
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (ur *userRepo) GetUserByEmailAndScope(email string, scope db.UsersScope) (*db.User, error) {
-	user, err := ur.sqlC.GetUserByEmailAndScope(ctx, db.GetUserByEmailAndScopeParams{
-		Email: email,
-		Scope: scope,
-	})
+func (ur *userRepo) GetUserByEmailAndScope(email string, scope models.UsersScope) (*models.User, error) {
+	var user models.User
 
-	if err != nil {
+	if err := ur.sqlX.Get(&user, query.GetUserByEmailAndScope, email, scope); err != nil {
 		return nil, err
 	}
 

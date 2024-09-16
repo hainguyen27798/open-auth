@@ -1,9 +1,8 @@
 package services
 
 import (
-	"database/sql"
 	"github.com/open-auth/global"
-	"github.com/open-auth/internal/db"
+	"github.com/open-auth/internal/models"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/utils"
 )
@@ -35,12 +34,9 @@ func (cs configService) InitAdmin(email string, password string) {
 		return
 	}
 
-	if err := cs.userRepo.CreateSuperUser(db.InsertSuperUserParams{
-		Email: email,
-		Password: sql.NullString{
-			String: hash,
-			Valid:  true,
-		},
+	if err := cs.userRepo.CreateSuperUser(models.InsertSuperUserParams{
+		Email:    email,
+		Password: hash,
 	}); err != nil {
 		global.Logger.Error(err.Error())
 		panic(err)

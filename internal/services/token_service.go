@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/open-auth/global"
 	"github.com/open-auth/internal/db"
+	"github.com/open-auth/internal/models"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
 	"github.com/open-auth/pkg/utils"
@@ -11,7 +12,7 @@ import (
 )
 
 type ITokenService interface {
-	GenerateNewToken(user db.User) (*utils.Token, error)
+	GenerateNewToken(user models.User) (*utils.Token, error)
 	ReNewToken(scope global.Scope, token string) (*utils.Token, *response.ServerCode)
 	RemoveToken(token string) *response.ServerCode
 }
@@ -26,7 +27,7 @@ func NewTokenService(tokenRepo repos.ITokenRepo) ITokenService {
 	}
 }
 
-func (ts *tokenService) GenerateNewToken(user db.User) (*utils.Token, error) {
+func (ts *tokenService) GenerateNewToken(user models.User) (*utils.Token, error) {
 	session := utils.CreateSession(32)
 	scope := global.Scope(strings.ToUpper(string(user.Scope)))
 
