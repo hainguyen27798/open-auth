@@ -6,5 +6,5 @@ type UserResponseDTO struct {
 	Email          string `json:"email"`
 	Status         string `json:"status"`
 	Image          string `json:"image" nested:"String"`
-	SocialProvider string `json:"socialProvider" nested:"UsersSocialProvider"`
+	SocialProvider string `json:"socialProvider"`
 }
