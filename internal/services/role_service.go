@@ -2,8 +2,8 @@ package services
 
 import (
 	"github.com/open-auth/global"
-	"github.com/open-auth/internal/db"
 	"github.com/open-auth/internal/dto"
+	"github.com/open-auth/internal/models"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
 	"github.com/open-auth/pkg/utils"
@@ -29,15 +29,13 @@ func NewRoleService(roleRepo repos.IRoleRepo) IRoleService {
 }
 
 func (rs *roleService) CreateNewRole(payload dto.RoleRequestDTO) *response.ServerCode {
-	payloadRequest, errCode := utils.DtoToModel[db.InsertNewRoleParams](payload)
+	payloadRequest, errCode := utils.DtoToModel[models.InsertNewRoleParams](payload)
 
 	if errCode != nil {
 		return errCode
 	}
 
-	err := rs.roleRepo.CreateNewRole(*payloadRequest)
-
-	if err != nil {
+	if err := rs.roleRepo.CreateNewRole(*payloadRequest); err != nil {
 		global.Logger.Error("CreateNewRole: ", zap.Error(err))
 		return response.ReturnCode(response.ErrCreateFailed)
 	}
@@ -60,25 +58,21 @@ func (rs *roleService) GetRole(id string) (*dto.RoleResponseDTO, *response.Serve
 }
 
 func (rs *roleService) UpdateRole(id string, payload dto.UpdateRoleRequestDTO) *response.ServerCode {
-	updatePayload, err := utils.DtoToModel[db.UpdateRoleParams](payload)
-	updatePayload.ID = id
+	updatePayload, err := utils.DtoToModel[models.UpdateRoleParams](payload)
+	updatePayload.ID = &id
 	if err != nil {
 		return response.ReturnCode(response.ErrCodeParamInvalid)
 	}
 
-	if err := rs.roleRepo.Update(*updatePayload); err != nil {
+	if _, err := rs.roleRepo.Update(*updatePayload); err != nil {
 		return response.ReturnCode(response.ErrBadRequest)
 	}
 
-	return response.ReturnCode(response.CreatedSuccess)
+	return response.ReturnCode(response.CodeSuccess)
 }
 
 func (rs *roleService) DeleteRole(id string) *response.ServerCode {
-	ok, err := rs.roleRepo.Delete(id)
-
-	if err != nil {
-		return response.ReturnCode(response.ErrInternalError)
-	}
+	ok := rs.roleRepo.Delete(id)
 
 	if !ok {
 		return response.ReturnCode(response.ErrNotFound)

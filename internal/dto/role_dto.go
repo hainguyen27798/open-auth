@@ -1,8 +1,8 @@
 package dto
 
 type RoleRequestDTO struct {
-	Name        string  `json:"name" binding:"required"`
-	Description *string `json:"description" mappingType:"NullString"`
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
 }
 
 type RoleResponseDTO struct {
@@ -12,5 +12,5 @@ type RoleResponseDTO struct {
 }
 
 type UpdateRoleRequestDTO struct {
-	Description *string `json:"description,omitempty" mappingType:"NullString"`
+	Description *string `json:"description,omitempty"`
 }
