@@ -1,4 +1,4 @@
-package sql
+package query
 
 var GetAllPermissionsBy = map[string]string{
 	"service_name": `SELECT * FROM permissions WHERE service_name LIKE ? LIMIT ? OFFSET ?`,

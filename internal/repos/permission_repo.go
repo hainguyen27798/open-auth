@@ -5,7 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/open-auth/global"
 	"github.com/open-auth/internal/models"
-	"github.com/open-auth/internal/sql"
+	"github.com/open-auth/internal/query"
 	"github.com/open-auth/pkg/utils"
 	"go.uber.org/zap"
 )
@@ -34,7 +34,7 @@ func (pr *permissionRepo) CreateNewPermission(payload models.InsertNewPermission
 		return err
 	}
 
-	if _, err := session.NamedExec(sql.InsertNewPermission, payload); err != nil {
+	if _, err := session.NamedExec(query.InsertNewPermission, payload); err != nil {
 		return err
 	}
 
@@ -43,7 +43,7 @@ func (pr *permissionRepo) CreateNewPermission(payload models.InsertNewPermission
 
 func (pr *permissionRepo) GetPermission(id string) *models.Permission {
 	var permission models.Permission
-	err := pr.sqlX.Get(&permission, sql.GetPermissionById, id)
+	err := pr.sqlX.Get(&permission, query.GetPermissionById, id)
 	if err != nil {
 		return nil
 	}
@@ -53,16 +53,16 @@ func (pr *permissionRepo) GetPermission(id string) *models.Permission {
 func (pr *permissionRepo) GetAllPermission(search string, by string, skip int, limit int) ([]models.Permission, int64) {
 	var permission []models.Permission
 	var total int64
-	query := sql.GetAllPermissionsBy[by]
-	queryCount := sql.CountPermissionSearchBy[by]
+	queryString := query.GetAllPermissionsBy[by]
+	queryCount := query.CountPermissionSearchBy[by]
 	search = "%" + search + "%"
 
-	if query == "" {
-		query = sql.GetAllPermissionsBy["service_name"]
-		queryCount = sql.CountPermissionSearchBy["service_name"]
+	if queryString == "" {
+		queryString = query.GetAllPermissionsBy["service_name"]
+		queryCount = query.CountPermissionSearchBy["service_name"]
 	}
 
-	if err := pr.sqlX.Select(&permission, query, search, limit, skip); err != nil {
+	if err := pr.sqlX.Select(&permission, queryString, search, limit, skip); err != nil {
 		global.Logger.Error("GetAllPermission: ", zap.Error(err))
 		return []models.Permission{}, 0
 	}
@@ -84,14 +84,14 @@ func (pr *permissionRepo) UpdatePermission(payload models.UpdatePermissionParams
 
 	querySet := utils.PartialUpdate(payload)
 
-	query := fmt.Sprintf(sql.UpdatePermission, "SET "+querySet)
+	queryString := fmt.Sprintf(query.UpdatePermission, "SET "+querySet)
 
 	session, err := utils.NewTransaction(pr.sqlX)
 	if err != nil {
 		return false, err
 	}
 
-	_, err = session.NamedExec(query, payload)
+	_, err = session.NamedExec(queryString, payload)
 	if err != nil {
 		return false, err
 	}
@@ -105,7 +105,7 @@ func (pr *permissionRepo) DeletePermission(id string) bool {
 		return false
 	}
 
-	count, err := session.Exec(sql.DeletePermission, id)
+	count, err := session.Exec(query.DeletePermission, id)
 	if err != nil {
 		return false
 	}
