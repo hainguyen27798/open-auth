@@ -34,7 +34,7 @@ func (rr *roleRepo) CreateNewRole(payload models.InsertNewRoleParams) error {
 		return err
 	}
 
-	if _, err := session.NamedExec(query.InsertNewRole, payload); err != nil {
+	if _, err := session.NamedExecCommit(query.InsertNewRole, payload); err != nil {
 		return err
 	}
 
@@ -73,7 +73,7 @@ func (rr *roleRepo) Delete(id string) bool {
 		return false
 	}
 
-	count, err := session.Exec(query.DeleteRole, id)
+	count, err := session.ExecCommit(query.DeleteRole, id)
 	if err != nil {
 		return false
 	}
@@ -100,7 +100,7 @@ func (rr *roleRepo) Update(payload models.UpdateRoleParams) (bool, error) {
 		return false, err
 	}
 
-	_, err = session.NamedExec(queryString, payload)
+	_, err = session.NamedExecCommit(queryString, payload)
 	if err != nil {
 		return false, err
 	}

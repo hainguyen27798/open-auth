@@ -3,7 +3,6 @@ package services
 import (
 	"fmt"
 	"github.com/open-auth/global"
-	"github.com/open-auth/internal/db"
 	"github.com/open-auth/internal/models"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
@@ -41,7 +40,7 @@ func (ts *tokenService) GenerateNewToken(user models.User) (*utils.Token, error)
 		return nil, err
 	}
 
-	if err := ts.tokenRepo.CreateNewToken(db.CreateNewTokenParams{
+	if err := ts.tokenRepo.CreateNewToken(models.InsertNewTokenParams{
 		UserID:       user.ID,
 		Session:      session,
 		RefreshToken: token.RefreshToken,

@@ -45,7 +45,7 @@ func (ur *userRepo) CreateNewUser(payload models.InsertNewUserParams) error {
 		return err
 	}
 
-	if _, err := session.NamedExec(query.InsertBasicUser, payload); err != nil {
+	if _, err := session.NamedExecCommit(query.InsertBasicUser, payload); err != nil {
 		return err
 	}
 	return nil
@@ -57,7 +57,7 @@ func (ur *userRepo) CreateSuperUser(payload models.InsertSuperUserParams) error 
 		return err
 	}
 
-	if _, err := session.NamedExec(query.InsertSuperuser, payload); err != nil {
+	if _, err := session.NamedExecCommit(query.InsertSuperuser, payload); err != nil {
 		return err
 	}
 	return nil

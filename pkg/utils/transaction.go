@@ -39,7 +39,7 @@ func (t *Transaction) Rollback() {
 	}
 }
 
-func (t *Transaction) NamedExec(query string, args interface{}) (bool, error) {
+func (t *Transaction) NamedExecCommit(query string, args interface{}) (bool, error) {
 	rs, err := t.tx.NamedExec(query, args)
 	if err != nil {
 		t.Rollback()
@@ -56,8 +56,22 @@ func (t *Transaction) NamedExec(query string, args interface{}) (bool, error) {
 	return rowsAffected > 0, nil
 }
 
-func (t *Transaction) Exec(query string, args ...interface{}) (int64, error) {
+func (t *Transaction) NamedExec(query string, args interface{}) error {
+	_, err := t.tx.NamedExec(query, args)
+	if err != nil {
+		t.Rollback()
+		return err
+	}
+
+	return nil
+}
+
+func (t *Transaction) ExecCommit(query string, args ...interface{}) (int64, error) {
 	rs := t.tx.MustExec(query, args...)
 	t.Commit()
 	return rs.RowsAffected()
+}
+
+func (t *Transaction) Exec(query string, args ...interface{}) {
+	t.tx.MustExec(query, args...)
 }

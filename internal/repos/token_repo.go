@@ -1,77 +1,79 @@
 package repos
 
 import (
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 	"github.com/open-auth/global"
-	"github.com/open-auth/internal/db"
+	"github.com/open-auth/internal/models"
+	"github.com/open-auth/internal/query"
+	"github.com/open-auth/pkg/utils"
 )
 
 type ITokenRepo interface {
-	CreateNewToken(payload db.CreateNewTokenParams) error
+	CreateNewToken(payload models.InsertNewTokenParams) error
 	UpdateRefreshToken(session string, newRefreshToken string) error
 	CheckOldRefreshTokenExists(oldRefreshToken string) bool
 	RemoveToken(token string) bool
 }
 
 type tokenRepo struct {
-	sqlC *db.Queries
+	sqlX *sqlx.DB
 }
 
 func NewTokenRepo() ITokenRepo {
 	return &tokenRepo{
-		sqlC: db.New(global.Mdb),
+		sqlX: global.MdbX,
 	}
 }
 
-func (tr *tokenRepo) CreateNewToken(payload db.CreateNewTokenParams) error {
-	return tr.sqlC.CreateNewToken(ctx, payload)
+func (tr *tokenRepo) CreateNewToken(payload models.InsertNewTokenParams) error {
+	session, err := utils.NewTransaction(tr.sqlX)
+	if err != nil {
+		return err
+	}
+
+	if _, err := session.NamedExecCommit(query.InsertNewToken, payload); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (tr *tokenRepo) UpdateRefreshToken(session string, newRefreshToken string) error {
-	tx, err := global.Mdb.Begin()
+	var token models.Token
+	if err := tr.sqlX.Get(&token, query.GetTokenBySession, session); err != nil {
+		return err
+	}
+
+	tran, err := utils.NewTransaction(tr.sqlX)
 	if err != nil {
 		return err
 	}
 
-	defer func(tx *sql.Tx) {
-		err := tx.Rollback()
-		if err != nil {
-		}
-	}(tx)
+	tran.Exec(query.UpdateRefreshToken, newRefreshToken, token.ID)
+	tran.Exec(query.CacheOldRefreshToken, token.ID, token.RefreshToken)
 
-	q := db.New(tx)
+	tran.Commit()
 
-	token, err := q.GetTokenBySession(ctx, session)
-	if err != nil {
-		return err
-	}
-
-	if err := q.UpdateRefreshToken(ctx, db.UpdateRefreshTokenParams{
-		RefreshToken: newRefreshToken,
-		ID:           token.ID,
-	}); err != nil {
-		return err
-	}
-
-	if err := q.CacheOldRefreshToken(ctx, db.CacheOldRefreshTokenParams{
-		TokenID:      token.ID,
-		RefreshToken: token.RefreshToken,
-	}); err != nil {
-		return err
-	}
-
-	return tx.Commit()
+	return nil
 }
 
 func (tr *tokenRepo) CheckOldRefreshTokenExists(oldRefreshToken string) bool {
-	count, _ := tr.sqlC.CheckOldRefreshTokenExists(ctx, oldRefreshToken)
-	return count > 0
+	var exists bool
+	if err := tr.sqlX.Get(&exists, query.CheckOldRefreshTokenExists, oldRefreshToken); err != nil {
+		return false
+	}
+	return exists
 }
 
 func (tr *tokenRepo) RemoveToken(token string) bool {
-	affectRow, err := tr.sqlC.RemoveToken(ctx, token)
+	session, err := utils.NewTransaction(tr.sqlX)
 	if err != nil {
 		return false
 	}
-	return affectRow > 0
+
+	count, err := session.ExecCommit(query.RemoveToken, token)
+	if err != nil {
+		return false
+	}
+	return count > 0
 }

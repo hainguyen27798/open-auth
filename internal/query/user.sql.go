@@ -14,4 +14,4 @@ const CheckUserByEmail = `SELECT EXISTS(SELECT 1 FROM users WHERE email = ?)`
 
 const GetUserByEmail = `SELECT * FROM users WHERE email = ? LIMIT 1`
 
-const GetUserByEmailAndScope = `SELECT * FROM users WHERE email = ? AND scope = ?LIMIT 1`
+const GetUserByEmailAndScope = `SELECT * FROM users WHERE email = ? AND scope = ? LIMIT 1`

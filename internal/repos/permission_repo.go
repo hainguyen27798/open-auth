@@ -34,7 +34,7 @@ func (pr *permissionRepo) CreateNewPermission(payload models.InsertNewPermission
 		return err
 	}
 
-	if _, err := session.NamedExec(query.InsertNewPermission, payload); err != nil {
+	if _, err := session.NamedExecCommit(query.InsertNewPermission, payload); err != nil {
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (pr *permissionRepo) UpdatePermission(payload models.UpdatePermissionParams
 		return false, err
 	}
 
-	_, err = session.NamedExec(queryString, payload)
+	_, err = session.NamedExecCommit(queryString, payload)
 	if err != nil {
 		return false, err
 	}
@@ -105,7 +105,7 @@ func (pr *permissionRepo) DeletePermission(id string) bool {
 		return false
 	}
 
-	count, err := session.Exec(query.DeletePermission, id)
+	count, err := session.ExecCommit(query.DeletePermission, id)
 	if err != nil {
 		return false
 	}
