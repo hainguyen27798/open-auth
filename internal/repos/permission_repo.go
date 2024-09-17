@@ -1,50 +1,68 @@
 package repos
 
 import (
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/open-auth/global"
-	"github.com/open-auth/internal/db"
 	"github.com/open-auth/internal/models"
-	"github.com/open-auth/internal/sql"
+	"github.com/open-auth/internal/query"
+	"github.com/open-auth/pkg/utils"
 	"go.uber.org/zap"
 )
 
 type IPermissionRepo interface {
-	CreateNewPermission(payload db.InsertNewPermissionParams) error
+	CreateNewPermission(payload models.InsertNewPermissionParams) error
 	GetAllPermission(search string, by string, skip int, limit int) ([]models.Permission, int64)
-	UpdatePermission(permission db.UpdatePermissionParams) (bool, error)
+	GetPermission(id string) *models.Permission
+	UpdatePermission(permission models.UpdatePermissionParams) (bool, error)
 	DeletePermission(id string) bool
 }
 
 type permissionRepo struct {
-	sqlC *db.Queries
 	sqlX *sqlx.DB
 }
 
 func NewPermissionRepo() IPermissionRepo {
 	return &permissionRepo{
-		sqlC: db.New(global.Mdb),
-		sqlX: global.MdbX,
+		sqlX: global.Mdb,
 	}
 }
 
-func (pr *permissionRepo) CreateNewPermission(payload db.InsertNewPermissionParams) error {
-	return pr.sqlC.InsertNewPermission(ctx, payload)
+func (pr *permissionRepo) CreateNewPermission(payload models.InsertNewPermissionParams) error {
+	session, err := utils.NewTransaction(pr.sqlX)
+	if err != nil {
+		return err
+	}
+
+	if _, err := session.NamedExecCommit(query.InsertNewPermission, payload); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pr *permissionRepo) GetPermission(id string) *models.Permission {
+	var permission models.Permission
+	err := pr.sqlX.Get(&permission, query.GetPermissionById, id)
+	if err != nil {
+		return nil
+	}
+	return &permission
 }
 
 func (pr *permissionRepo) GetAllPermission(search string, by string, skip int, limit int) ([]models.Permission, int64) {
 	var permission []models.Permission
 	var total int64
-	query := sql.GetAllPermissionsBy[by]
-	queryCount := sql.CountPermissionSearchBy[by]
+	queryString := query.GetAllPermissionsBy[by]
+	queryCount := query.CountPermissionSearchBy[by]
 	search = "%" + search + "%"
 
-	if query == "" {
-		query = sql.GetAllPermissionsBy["service_name"]
-		queryCount = sql.CountPermissionSearchBy["service_name"]
+	if queryString == "" {
+		queryString = query.GetAllPermissionsBy["service_name"]
+		queryCount = query.CountPermissionSearchBy["service_name"]
 	}
 
-	if err := pr.sqlX.Select(&permission, query, search, limit, skip); err != nil {
+	if err := pr.sqlX.Select(&permission, queryString, search, limit, skip); err != nil {
 		global.Logger.Error("GetAllPermission: ", zap.Error(err))
 		return []models.Permission{}, 0
 	}
@@ -57,20 +75,38 @@ func (pr *permissionRepo) GetAllPermission(search string, by string, skip int, l
 	return permission, total
 }
 
-func (pr *permissionRepo) UpdatePermission(permission db.UpdatePermissionParams) (bool, error) {
-	affectRows, err := pr.sqlC.UpdatePermission(ctx, permission)
+func (pr *permissionRepo) UpdatePermission(payload models.UpdatePermissionParams) (bool, error) {
+	permission := pr.GetPermission(*payload.ID)
 
+	if permission == nil {
+		return false, nil
+	}
+
+	querySet := utils.PartialUpdate(payload)
+
+	queryString := fmt.Sprintf(query.UpdatePermission, "SET "+querySet)
+
+	session, err := utils.NewTransaction(pr.sqlX)
 	if err != nil {
 		return false, err
 	}
 
-	return affectRows > 0, nil
+	_, err = session.NamedExecCommit(queryString, payload)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (pr *permissionRepo) DeletePermission(id string) bool {
-	count, err := pr.sqlC.DeletePermission(ctx, id)
+	session, err := utils.NewTransaction(pr.sqlX)
 	if err != nil {
-		global.Logger.Error("DeletePermission: ", zap.Error(err))
+		return false
+	}
+
+	count, err := session.ExecCommit(query.DeletePermission, id)
+	if err != nil {
 		return false
 	}
 	return count > 0

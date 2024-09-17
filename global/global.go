@@ -1,7 +1,6 @@
 package global
 
 import (
-	"database/sql"
 	"github.com/jmoiron/sqlx"
 	"github.com/open-auth/pkg/logger"
 	"github.com/open-auth/pkg/setting"
@@ -28,7 +27,6 @@ const (
 var (
 	Config setting.Config
 	Logger *logger.Zap
-	Mdb    *sql.DB
-	MdbX   *sqlx.DB
+	Mdb    *sqlx.DB
 	Rdb    *redis.Client
 )

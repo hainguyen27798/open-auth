@@ -36,12 +36,11 @@ func InitMysql() {
 	err := db.Ping()
 	CheckErrorPanic(err, "Init mysql failed")
 	global.Logger.Info("Initializing mysql successfully")
-	global.Mdb = db
 
 	setPool(db)
 	migrateTables(db)
 
-	global.MdbX = sqlx.NewDb(db, "mysql")
+	global.Mdb = sqlx.NewDb(db, "mysql")
 }
 
 func setPool(db *sql.DB) {
