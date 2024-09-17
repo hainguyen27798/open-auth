@@ -6,6 +6,3 @@ build:
 
 wire:
 	cd internal/wires && wire
-
-sqlc:
-	sqlc generate
