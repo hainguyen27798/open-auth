@@ -24,7 +24,7 @@ type roleRepo struct {
 
 func NewRoleRepo() IRoleRepo {
 	return &roleRepo{
-		sqlX: global.MdbX,
+		sqlX: global.Mdb,
 	}
 }
 

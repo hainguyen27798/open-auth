@@ -21,7 +21,7 @@ type tokenRepo struct {
 
 func NewTokenRepo() ITokenRepo {
 	return &tokenRepo{
-		sqlX: global.MdbX,
+		sqlX: global.Mdb,
 	}
 }
 

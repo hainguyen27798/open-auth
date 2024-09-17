@@ -24,7 +24,7 @@ type permissionRepo struct {
 
 func NewPermissionRepo() IPermissionRepo {
 	return &permissionRepo{
-		sqlX: global.MdbX,
+		sqlX: global.Mdb,
 	}
 }
 

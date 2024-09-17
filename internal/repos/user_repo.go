@@ -23,7 +23,7 @@ type userRepo struct {
 
 func NewUserRepo() IUserRepo {
 	return &userRepo{
-		sqlX: global.MdbX,
+		sqlX: global.Mdb,
 	}
 }
 
