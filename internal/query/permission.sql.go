@@ -1,6 +1,8 @@
 package query
 
-var GetAllPermissionsBy = map[string]string{
+const GetAllPermissions = `SELECT * FROM permissions`
+
+var SearchPermissionsBy = map[string]string{
 	"service_name": `SELECT * FROM permissions WHERE service_name LIKE ? LIMIT ? OFFSET ?`,
 	"resource":     `SELECT * FROM permissions WHERE resource LIKE ? LIMIT ? OFFSET ?`,
 	"action":       `SELECT * FROM permissions WHERE action LIKE ? LIMIT ? OFFSET ?`,

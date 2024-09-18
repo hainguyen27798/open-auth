@@ -12,7 +12,8 @@ import (
 
 type IPermissionRepo interface {
 	CreateNewPermission(payload models.InsertNewPermissionParams) error
-	GetAllPermission(search string, by string, skip int, limit int) ([]models.Permission, int64)
+	GetAllPermissions() []models.Permission
+	SearchPermissions(search string, by string, skip int, limit int) ([]models.Permission, int64)
 	GetPermission(id string) *models.Permission
 	UpdatePermission(permission models.UpdatePermissionParams) (bool, error)
 	DeletePermission(id string) bool
@@ -50,19 +51,28 @@ func (pr *permissionRepo) GetPermission(id string) *models.Permission {
 	return &permission
 }
 
-func (pr *permissionRepo) GetAllPermission(search string, by string, skip int, limit int) ([]models.Permission, int64) {
-	var permission []models.Permission
+func (pr *permissionRepo) GetAllPermissions() []models.Permission {
+	var permissions []models.Permission
+	if err := pr.sqlX.Select(&permissions, query.GetAllPermissions); err != nil {
+		global.Logger.Error("GetAllPermission: ", zap.Error(err))
+		return []models.Permission{}
+	}
+	return permissions
+}
+
+func (pr *permissionRepo) SearchPermissions(search string, by string, skip int, limit int) ([]models.Permission, int64) {
+	var permissions []models.Permission
 	var total int64
-	queryString := query.GetAllPermissionsBy[by]
+	queryString := query.SearchPermissionsBy[by]
 	queryCount := query.CountPermissionSearchBy[by]
 	search = "%" + search + "%"
 
 	if queryString == "" {
-		queryString = query.GetAllPermissionsBy["service_name"]
+		queryString = query.SearchPermissionsBy["service_name"]
 		queryCount = query.CountPermissionSearchBy["service_name"]
 	}
 
-	if err := pr.sqlX.Select(&permission, queryString, search, limit, skip); err != nil {
+	if err := pr.sqlX.Select(&permissions, queryString, search, limit, skip); err != nil {
 		global.Logger.Error("GetAllPermission: ", zap.Error(err))
 		return []models.Permission{}, 0
 	}
@@ -72,7 +82,7 @@ func (pr *permissionRepo) GetAllPermission(search string, by string, skip int, l
 		return []models.Permission{}, 0
 	}
 
-	return permission, total
+	return permissions, total
 }
 
 func (pr *permissionRepo) UpdatePermission(payload models.UpdatePermissionParams) (bool, error) {

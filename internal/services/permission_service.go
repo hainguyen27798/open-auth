@@ -11,7 +11,8 @@ import (
 
 type IPermissionService interface {
 	CreateNewPermission(payload dto.PermissionRequestDTO) *response.ServerCode
-	GetAllPermissions(payload dto.SearchDTO) dto.PaginationDto[dto.PermissionResponseDTO]
+	GetAllPermissions() []dto.PermissionResponseDTO
+	SearchPermissions(payload dto.SearchDTO) dto.PaginationDto[dto.PermissionResponseDTO]
 	UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *response.ServerCode
 	DeletePermission(id string) *response.ServerCode
 }
@@ -41,20 +42,26 @@ func (ps *permissionService) CreateNewPermission(payload dto.PermissionRequestDT
 	return response.ReturnCode(response.CreatedSuccess)
 }
 
-func (ps *permissionService) GetAllPermissions(payload dto.SearchDTO) dto.PaginationDto[dto.PermissionResponseDTO] {
-	permission, total := ps.permissionRepo.GetAllPermission(
+func (ps *permissionService) SearchPermissions(payload dto.SearchDTO) dto.PaginationDto[dto.PermissionResponseDTO] {
+	permissions, total := ps.permissionRepo.SearchPermissions(
 		payload.Search,
 		payload.By,
 		payload.Skip(),
 		payload.Limit(),
 	)
 	return utils.ModelToPaginationDto[dto.PermissionResponseDTO](
-		permission,
+		permissions,
 		dto.PaginationMetaDataDto{
 			Total:        total,
 			PageSize:     payload.Limit(),
 			PageSelected: payload.PageSelected(),
 		},
+	)
+}
+
+func (ps *permissionService) GetAllPermissions() []dto.PermissionResponseDTO {
+	return utils.ModelToDtos[dto.PermissionResponseDTO](
+		ps.permissionRepo.GetAllPermissions(),
 	)
 }
 

@@ -26,9 +26,14 @@ func (ps *PermissionController) Create(c *gin.Context) {
 	response.MessageResponse(c, ps.permissionService.CreateNewPermission(*payload).Code())
 }
 
-func (ps *PermissionController) GetAll(c *gin.Context) {
+func (ps *PermissionController) Search(c *gin.Context) {
 	query := utils.QueryToDto[dto.SearchDTO](c)
-	permission := ps.permissionService.GetAllPermissions(query)
+	permission := ps.permissionService.SearchPermissions(query)
+	response.OkResponse(c, response.CodeSuccess, permission)
+}
+
+func (ps *PermissionController) GetAll(c *gin.Context) {
+	permission := ps.permissionService.GetAllPermissions()
 	response.OkResponse(c, response.CodeSuccess, permission)
 }
 
