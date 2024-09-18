@@ -12,7 +12,7 @@ import (
 
 type IRoleService interface {
 	CreateNewRole(payload dto.RoleRequestDTO) *response.ServerCode
-	GetAllRoles() []dto.RoleResponseDTO
+	GetAllRoles(payload dto.SearchDTO) dto.PaginationDto[dto.RoleResponseDTO]
 	GetRole(id string) (*dto.RoleResponseDTO, *response.ServerCode)
 	DeleteRole(id string) *response.ServerCode
 	UpdateRole(id string, payload dto.UpdateRoleRequestDTO) *response.ServerCode
@@ -43,8 +43,20 @@ func (rs *roleService) CreateNewRole(payload dto.RoleRequestDTO) *response.Serve
 	return response.ReturnCode(response.CreatedSuccess)
 }
 
-func (rs *roleService) GetAllRoles() []dto.RoleResponseDTO {
-	return utils.ModelToDtos[dto.RoleResponseDTO](rs.roleRepo.GetAllRoles())
+func (rs *roleService) GetAllRoles(payload dto.SearchDTO) dto.PaginationDto[dto.RoleResponseDTO] {
+	roles, total := rs.roleRepo.GetAllRoles(
+		payload.Search,
+		payload.Skip(),
+		payload.Limit(),
+	)
+	return utils.ModelToPaginationDto[dto.RoleResponseDTO](
+		roles,
+		dto.PaginationMetaDataDto{
+			Total:        total,
+			PageSize:     payload.Limit(),
+			PageSelected: payload.PageSelected(),
+		},
+	)
 }
 
 func (rs *roleService) GetRole(id string) (*dto.RoleResponseDTO, *response.ServerCode) {

@@ -27,7 +27,8 @@ func (rc *RoleController) Create(c *gin.Context) {
 }
 
 func (rc *RoleController) GetAll(c *gin.Context) {
-	roles := rc.roleService.GetAllRoles()
+	query := utils.QueryToDto[dto.SearchDTO](c)
+	roles := rc.roleService.GetAllRoles(query)
 	response.OkResponse(c, response.CodeSuccess, roles)
 }
 

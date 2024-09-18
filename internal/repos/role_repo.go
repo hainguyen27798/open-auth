@@ -12,7 +12,7 @@ import (
 
 type IRoleRepo interface {
 	CreateNewRole(payload models.InsertNewRoleParams) error
-	GetAllRoles() []models.Role
+	GetAllRoles(search string, skip int, limit int) ([]models.Role, int64)
 	GetById(id string) (*models.Role, error)
 	Delete(id string) bool
 	Update(payload models.UpdateRoleParams) (bool, error)
@@ -41,17 +41,21 @@ func (rr *roleRepo) CreateNewRole(payload models.InsertNewRoleParams) error {
 	return nil
 }
 
-func (rr *roleRepo) GetAllRoles() []models.Role {
+func (rr *roleRepo) GetAllRoles(search string, skip int, limit int) ([]models.Role, int64) {
 	var roles []models.Role
+	var total int64
 
-	err := rr.sqlX.Select(&roles, query.GetAllRoles)
-
-	if err != nil {
+	if err := rr.sqlX.Select(&roles, query.GetAllRoles, "%"+search+"%", limit, skip); err != nil {
 		global.Logger.Error("GetAllRoles: ", zap.Error(err))
-		return []models.Role{}
+		return []models.Role{}, 0
 	}
 
-	return roles
+	if err := rr.sqlX.Get(&total, query.GetAllRolesTotal, search); err != nil {
+		global.Logger.Error("CountPermission: ", zap.Error(err))
+		return []models.Role{}, 0
+	}
+
+	return roles, total
 }
 
 func (rr *roleRepo) GetById(id string) (*models.Role, error) {
