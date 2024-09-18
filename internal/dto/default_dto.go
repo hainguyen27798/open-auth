@@ -7,7 +7,9 @@ type DefaultDTO struct {
 }
 
 type PaginationMetaDataDto struct {
-	Total int64 `json:"total"`
+	Total        int64 `json:"total"`
+	PageSize     int   `json:"pageSize"`
+	PageSelected int   `json:"pageSelected"`
 }
 
 type PaginationDto[T any] struct {
