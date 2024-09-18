@@ -51,7 +51,9 @@ func (ps *permissionService) GetAllPermissions(payload dto.SearchDTO) dto.Pagina
 	return utils.ModelToPaginationDto[dto.PermissionResponseDTO](
 		permission,
 		dto.PaginationMetaDataDto{
-			Total: total,
+			Total:        total,
+			PageSize:     payload.Limit(),
+			PageSelected: payload.PageSelected(),
 		},
 	)
 }

@@ -14,6 +14,13 @@ func (s *SearchDTO) Skip() int {
 	return (s.Page - 1) * s.Limit()
 }
 
+func (s *SearchDTO) PageSelected() int {
+	if s.Page <= 1 {
+		return 1
+	}
+	return s.Page
+}
+
 func (s *SearchDTO) Limit() int {
 	if s.Take == 0 {
 		return 10
