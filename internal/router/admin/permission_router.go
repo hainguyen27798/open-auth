@@ -18,6 +18,7 @@ func (pr *PermissionRouter) InitPermissionRouter(Router *gin.RouterGroup) {
 		permissionRouter.POST("", permissionController.Create)
 		permissionRouter.GET("", permissionController.Search)
 		permissionRouter.GET("all", permissionController.GetAll)
+		permissionRouter.GET("options/:roleId", permissionController.GetPermissionOptions)
 		permissionRouter.PATCH(":id", permissionController.Update)
 		permissionRouter.DELETE(":id", permissionController.Delete)
 	}

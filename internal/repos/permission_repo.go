@@ -17,6 +17,7 @@ type IPermissionRepo interface {
 	GetPermission(id string) *models.Permission
 	UpdatePermission(permission models.UpdatePermissionParams) (bool, error)
 	DeletePermission(id string) bool
+	GetPermissionOptions(roleId string) []models.Permission
 }
 
 type permissionRepo struct {
@@ -120,4 +121,14 @@ func (pr *permissionRepo) DeletePermission(id string) bool {
 		return false
 	}
 	return count > 0
+}
+
+func (pr *permissionRepo) GetPermissionOptions(roleId string) []models.Permission {
+	var permissions []models.Permission
+	err := pr.sqlX.Select(&permissions, query.SelectPermissionOptions, roleId)
+	if err != nil {
+		global.Logger.Error("GetPermissionOptions: ", zap.Error(err))
+		return []models.Permission{}
+	}
+	return permissions
 }

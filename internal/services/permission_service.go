@@ -15,6 +15,7 @@ type IPermissionService interface {
 	SearchPermissions(payload dto.SearchDTO) dto.PaginationDto[dto.PermissionResponseDTO]
 	UpdatePermission(id string, payload dto.UpdatePermissionRequestDTO) *response.ServerCode
 	DeletePermission(id string) *response.ServerCode
+	GetPermissionOptions(roleId string) []dto.PermissionResponseDTO
 }
 
 type permissionService struct {
@@ -90,4 +91,10 @@ func (ps *permissionService) DeletePermission(id string) *response.ServerCode {
 		return response.ReturnCode(response.CodeSuccess)
 	}
 	return response.ReturnCode(response.ErrNotFound)
+}
+
+func (ps *permissionService) GetPermissionOptions(roleId string) []dto.PermissionResponseDTO {
+	return utils.ModelToDtos[dto.PermissionResponseDTO](
+		ps.permissionRepo.GetPermissionOptions(roleId),
+	)
 }
