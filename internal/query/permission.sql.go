@@ -1,6 +1,8 @@
 package query
 
-var GetAllPermissionsBy = map[string]string{
+const GetAllPermissions = `SELECT * FROM permissions`
+
+var SearchPermissionsBy = map[string]string{
 	"service_name": `SELECT * FROM permissions WHERE service_name LIKE ? LIMIT ? OFFSET ?`,
 	"resource":     `SELECT * FROM permissions WHERE resource LIKE ? LIMIT ? OFFSET ?`,
 	"action":       `SELECT * FROM permissions WHERE action LIKE ? LIMIT ? OFFSET ?`,
@@ -24,3 +26,12 @@ const InsertNewPermission = `
 const DeletePermission = `DELETE FROM permissions WHERE id = ?`
 
 const UpdatePermission = `UPDATE permissions %s WHERE id = :id`
+
+const SelectPermissionOptions = `
+	select p.* from permissions as p
+	left join (
+		select permission_id from roles_permissions where role_id = ?
+	) as rp
+	on rp.permission_id = p.id
+	where rp.permission_id is null
+`

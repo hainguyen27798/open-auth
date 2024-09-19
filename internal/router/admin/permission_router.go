@@ -16,7 +16,9 @@ func (pr *PermissionRouter) InitPermissionRouter(Router *gin.RouterGroup) {
 	permissionRouter.Use(middlewares.AuthMiddleware(global.AdminScope))
 	{
 		permissionRouter.POST("", permissionController.Create)
-		permissionRouter.GET("", permissionController.GetAll)
+		permissionRouter.GET("", permissionController.Search)
+		permissionRouter.GET("all", permissionController.GetAll)
+		permissionRouter.GET("options/:roleId", permissionController.GetPermissionOptions)
 		permissionRouter.PATCH(":id", permissionController.Update)
 		permissionRouter.DELETE(":id", permissionController.Delete)
 	}

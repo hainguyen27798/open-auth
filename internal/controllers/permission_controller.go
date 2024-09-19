@@ -18,30 +18,41 @@ func NewPermissionController(permissionService services.IPermissionService) *Per
 	}
 }
 
-func (ps *PermissionController) Create(c *gin.Context) {
+func (pc *PermissionController) Create(c *gin.Context) {
 	payload := utils.BodyToDto[dto.PermissionRequestDTO](c)
 	if payload == nil {
 		return
 	}
-	response.MessageResponse(c, ps.permissionService.CreateNewPermission(*payload).Code())
+	response.MessageResponse(c, pc.permissionService.CreateNewPermission(*payload).Code())
 }
 
-func (ps *PermissionController) GetAll(c *gin.Context) {
+func (pc *PermissionController) Search(c *gin.Context) {
 	query := utils.QueryToDto[dto.SearchDTO](c)
-	permission := ps.permissionService.GetAllPermissions(query)
+	permission := pc.permissionService.SearchPermissions(query)
 	response.OkResponse(c, response.CodeSuccess, permission)
 }
 
-func (ps *PermissionController) Update(c *gin.Context) {
+func (pc *PermissionController) GetAll(c *gin.Context) {
+	permission := pc.permissionService.GetAllPermissions()
+	response.OkResponse(c, response.CodeSuccess, permission)
+}
+
+func (pc *PermissionController) Update(c *gin.Context) {
 	permissionId := c.Param("id")
 	payload := utils.BodyToDto[dto.UpdatePermissionRequestDTO](c)
 	if payload == nil {
 		return
 	}
-	response.MessageResponse(c, ps.permissionService.UpdatePermission(permissionId, *payload).Code())
+	response.MessageResponse(c, pc.permissionService.UpdatePermission(permissionId, *payload).Code())
 }
 
-func (ps *PermissionController) Delete(c *gin.Context) {
+func (pc *PermissionController) Delete(c *gin.Context) {
 	permissionId := c.Param("id")
-	response.MessageResponse(c, ps.permissionService.DeletePermission(permissionId).Code())
+	response.MessageResponse(c, pc.permissionService.DeletePermission(permissionId).Code())
+}
+
+func (pc *PermissionController) GetPermissionOptions(c *gin.Context) {
+	roleId := c.Param("roleId")
+	roles := pc.permissionService.GetPermissionOptions(roleId)
+	response.OkResponse(c, response.CodeSuccess, roles)
 }

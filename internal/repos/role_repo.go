@@ -12,10 +12,13 @@ import (
 
 type IRoleRepo interface {
 	CreateNewRole(payload models.InsertNewRoleParams) error
-	GetAllRoles() []models.Role
+	GetAllRoles(search string, skip int, limit int) ([]models.Role, int64)
 	GetById(id string) (*models.Role, error)
 	Delete(id string) bool
 	Update(payload models.UpdateRoleParams) (bool, error)
+	InsertRolePermission(roleId string, permissionId string) error
+	GetRolePermissions(roleId string) []models.Permission
+	DeleteRolePermission(roleId string, permissionId string) (bool, error)
 }
 
 type roleRepo struct {
@@ -41,17 +44,21 @@ func (rr *roleRepo) CreateNewRole(payload models.InsertNewRoleParams) error {
 	return nil
 }
 
-func (rr *roleRepo) GetAllRoles() []models.Role {
+func (rr *roleRepo) GetAllRoles(search string, skip int, limit int) ([]models.Role, int64) {
 	var roles []models.Role
+	var total int64
 
-	err := rr.sqlX.Select(&roles, query.GetAllRoles)
-
-	if err != nil {
+	if err := rr.sqlX.Select(&roles, query.GetAllRoles, "%"+search+"%", limit, skip); err != nil {
 		global.Logger.Error("GetAllRoles: ", zap.Error(err))
-		return []models.Role{}
+		return []models.Role{}, 0
 	}
 
-	return roles
+	if err := rr.sqlX.Get(&total, query.GetAllRolesTotal, "%"+search+"%"); err != nil {
+		global.Logger.Error("CountPermission: ", zap.Error(err))
+		return []models.Role{}, 0
+	}
+
+	return roles, total
 }
 
 func (rr *roleRepo) GetById(id string) (*models.Role, error) {
@@ -106,4 +113,39 @@ func (rr *roleRepo) Update(payload models.UpdateRoleParams) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (rr *roleRepo) InsertRolePermission(roleId string, permissionId string) error {
+	session, err := utils.NewTransaction(rr.sqlX)
+	if err != nil {
+		return err
+	}
+	session.Exec(query.InsertRolePermission, roleId, permissionId)
+	session.Commit()
+	return nil
+}
+
+func (rr *roleRepo) GetRolePermissions(roleId string) []models.Permission {
+	var permissions []models.Permission
+	err := rr.sqlX.Select(&permissions, query.SelectPermissionByRoleId, roleId)
+	if err != nil {
+		global.Logger.Error("GetRolePermissions: ", zap.Error(err))
+		return []models.Permission{}
+	}
+	return permissions
+}
+
+func (rr *roleRepo) DeleteRolePermission(roleId string, permissionId string) (bool, error) {
+	session, err := utils.NewTransaction(rr.sqlX)
+	if err != nil {
+		return false, err
+	}
+
+	rowAffect, err := session.ExecCommit(query.DeleteRolePermission, roleId, permissionId)
+	if err != nil {
+		global.Logger.Error("DeleteRolePermissions: ", zap.Error(err))
+		return false, err
+	}
+
+	return rowAffect > 0, nil
 }

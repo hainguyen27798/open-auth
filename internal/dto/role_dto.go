@@ -14,3 +14,7 @@ type RoleResponseDTO struct {
 type UpdateRoleRequestDTO struct {
 	Description *string `json:"description,omitempty"`
 }
+
+type AddRolePermissionRequestDTO struct {
+	PermissionId string `json:"permissionId" binding:"required"`
+}

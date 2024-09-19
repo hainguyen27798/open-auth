@@ -17,8 +17,13 @@ func (rr *RoleRouter) InitRoleRouter(Router *gin.RouterGroup) {
 	{
 		roleRouter.POST("", RoleController.Create)
 		roleRouter.GET("", RoleController.GetAll)
+
 		roleRouter.GET(":id", RoleController.Get)
 		roleRouter.PATCH(":id", RoleController.Update)
 		roleRouter.DELETE(":id", RoleController.Delete)
+
+		roleRouter.POST(":id/permission", RoleController.AddRolePermission)
+		roleRouter.GET(":id/permissions", RoleController.GetRolePermissions)
+		roleRouter.DELETE(":id/permission/:permissionId", RoleController.DeleteRolePermission)
 	}
 }

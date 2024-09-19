@@ -27,7 +27,8 @@ func (rc *RoleController) Create(c *gin.Context) {
 }
 
 func (rc *RoleController) GetAll(c *gin.Context) {
-	roles := rc.roleService.GetAllRoles()
+	query := utils.QueryToDto[dto.SearchDTO](c)
+	roles := rc.roleService.GetAllRoles(query)
 	response.OkResponse(c, response.CodeSuccess, roles)
 }
 
@@ -43,6 +44,12 @@ func (rc *RoleController) Get(c *gin.Context) {
 	response.OkResponse(c, response.CodeSuccess, role)
 }
 
+func (rc *RoleController) GetRolePermissions(c *gin.Context) {
+	roleId := c.Param("id")
+	roles := rc.roleService.GetRolePermissions(roleId)
+	response.OkResponse(c, response.CodeSuccess, roles)
+}
+
 func (rc *RoleController) Update(c *gin.Context) {
 	roleId := c.Param("id")
 	payload := utils.BodyToDto[dto.UpdateRoleRequestDTO](c)
@@ -55,4 +62,25 @@ func (rc *RoleController) Update(c *gin.Context) {
 func (rc *RoleController) Delete(c *gin.Context) {
 	roleId := c.Param("id")
 	response.MessageResponse(c, rc.roleService.DeleteRole(roleId).Code())
+}
+
+func (rc *RoleController) AddRolePermission(c *gin.Context) {
+	payload := utils.BodyToDto[dto.AddRolePermissionRequestDTO](c)
+	roleId := c.Param("id")
+	if payload == nil {
+		return
+	}
+
+	resCode := rc.roleService.AddRolePermission(roleId, payload.PermissionId)
+
+	response.MessageResponse(c, resCode.Code())
+}
+
+func (rc *RoleController) DeleteRolePermission(c *gin.Context) {
+	roleId := c.Param("id")
+	permissionId := c.Param("permissionId")
+
+	resCode := rc.roleService.DeleteRolePermission(roleId, permissionId)
+
+	response.MessageResponse(c, resCode.Code())
 }
