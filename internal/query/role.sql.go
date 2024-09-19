@@ -19,3 +19,5 @@ const SelectPermissionByRoleId = `
 	FROM permissions AS p, roles_permissions AS rp
 	WHERE rp.role_id = ? AND rp.permission_id = p.id
 `
+
+const DeleteRolePermission = `DELETE FROM roles_permissions WHERE role_id = ? AND permission_id = ?`

@@ -75,3 +75,12 @@ func (rc *RoleController) AddRolePermission(c *gin.Context) {
 
 	response.MessageResponse(c, resCode.Code())
 }
+
+func (rc *RoleController) DeleteRolePermission(c *gin.Context) {
+	roleId := c.Param("id")
+	permissionId := c.Param("permissionId")
+
+	resCode := rc.roleService.DeleteRolePermission(roleId, permissionId)
+
+	response.MessageResponse(c, resCode.Code())
+}

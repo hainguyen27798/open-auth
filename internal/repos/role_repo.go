@@ -18,6 +18,7 @@ type IRoleRepo interface {
 	Update(payload models.UpdateRoleParams) (bool, error)
 	InsertRolePermission(roleId string, permissionId string) error
 	GetRolePermissions(roleId string) []models.Permission
+	DeleteRolePermission(roleId string, permissionId string) (bool, error)
 }
 
 type roleRepo struct {
@@ -132,4 +133,19 @@ func (rr *roleRepo) GetRolePermissions(roleId string) []models.Permission {
 		return []models.Permission{}
 	}
 	return permissions
+}
+
+func (rr *roleRepo) DeleteRolePermission(roleId string, permissionId string) (bool, error) {
+	session, err := utils.NewTransaction(rr.sqlX)
+	if err != nil {
+		return false, err
+	}
+
+	rowAffect, err := session.ExecCommit(query.DeleteRolePermission, roleId, permissionId)
+	if err != nil {
+		global.Logger.Error("DeleteRolePermissions: ", zap.Error(err))
+		return false, err
+	}
+
+	return rowAffect > 0, nil
 }

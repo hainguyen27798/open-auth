@@ -18,6 +18,7 @@ type IRoleService interface {
 	UpdateRole(id string, payload dto.UpdateRoleRequestDTO) *response.ServerCode
 	AddRolePermission(roleId string, permissionId string) *response.ServerCode
 	GetRolePermissions(roleId string) []dto.PermissionResponseDTO
+	DeleteRolePermission(roleId string, permissionId string) *response.ServerCode
 }
 
 type roleService struct {
@@ -104,6 +105,17 @@ func (rs *roleService) DeleteRole(id string) *response.ServerCode {
 func (rs *roleService) AddRolePermission(roleId string, permissionId string) *response.ServerCode {
 	if err := rs.roleRepo.InsertRolePermission(roleId, permissionId); err != nil {
 		return response.ReturnCode(response.ErrBadRequest)
+	}
+	return response.ReturnCode(response.CodeSuccess)
+}
+
+func (rs *roleService) DeleteRolePermission(roleId string, permissionId string) *response.ServerCode {
+	ok, err := rs.roleRepo.DeleteRolePermission(roleId, permissionId)
+	if err != nil {
+		return response.ReturnCode(response.ErrBadRequest)
+	}
+	if !ok {
+		return response.ReturnCode(response.ErrNotFound)
 	}
 	return response.ReturnCode(response.CodeSuccess)
 }

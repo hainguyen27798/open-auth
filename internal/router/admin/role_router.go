@@ -24,5 +24,6 @@ func (rr *RoleRouter) InitRoleRouter(Router *gin.RouterGroup) {
 
 		roleRouter.POST(":id/permission", RoleController.AddRolePermission)
 		roleRouter.GET(":id/permissions", RoleController.GetRolePermissions)
+		roleRouter.DELETE(":id/permission/:permissionId", RoleController.DeleteRolePermission)
 	}
 }
