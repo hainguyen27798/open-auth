@@ -16,6 +16,8 @@ type IRoleRepo interface {
 	GetById(id string) (*models.Role, error)
 	Delete(id string) bool
 	Update(payload models.UpdateRoleParams) (bool, error)
+	InsertRolePermission(roleId string, permissionId string) error
+	GetRolePermissions(roleId string) []models.Permission
 }
 
 type roleRepo struct {
@@ -50,7 +52,7 @@ func (rr *roleRepo) GetAllRoles(search string, skip int, limit int) ([]models.Ro
 		return []models.Role{}, 0
 	}
 
-	if err := rr.sqlX.Get(&total, query.GetAllRolesTotal, search); err != nil {
+	if err := rr.sqlX.Get(&total, query.GetAllRolesTotal, "%"+search+"%"); err != nil {
 		global.Logger.Error("CountPermission: ", zap.Error(err))
 		return []models.Role{}, 0
 	}
@@ -110,4 +112,24 @@ func (rr *roleRepo) Update(payload models.UpdateRoleParams) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (rr *roleRepo) InsertRolePermission(roleId string, permissionId string) error {
+	session, err := utils.NewTransaction(rr.sqlX)
+	if err != nil {
+		return err
+	}
+	session.Exec(query.InsertRolePermission, roleId, permissionId)
+	session.Commit()
+	return nil
+}
+
+func (rr *roleRepo) GetRolePermissions(roleId string) []models.Permission {
+	var permissions []models.Permission
+	err := rr.sqlX.Select(&permissions, query.SelectPermissionByRoleId, roleId)
+	if err != nil {
+		global.Logger.Error("GetRolePermissions: ", zap.Error(err))
+		return []models.Permission{}
+	}
+	return permissions
 }
