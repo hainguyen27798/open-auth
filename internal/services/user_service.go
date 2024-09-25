@@ -1,13 +1,15 @@
 package services
 
 import (
-	"github.com/open-auth/internal/models"
+	"github.com/open-auth/internal/dto"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
+	"github.com/open-auth/pkg/utils"
 )
 
 type IUserService interface {
-	GetMe(email string) (*models.User, *response.ServerCode)
+	GetMe(email string) (*dto.UserResponseDTO, *response.ServerCode)
+	GetUsers(payload dto.SearchDTO) []dto.UserResponseDTO
 }
 
 type userService struct {
@@ -20,12 +22,18 @@ func NewUserService(userRepo repos.IUserRepo) IUserService {
 	}
 }
 
-func (us *userService) GetMe(email string) (*models.User, *response.ServerCode) {
+func (us *userService) GetMe(email string) (*dto.UserResponseDTO, *response.ServerCode) {
 	user, err := us.userRepo.GetUserByEmail(email)
 
 	if err != nil {
 		return nil, response.ReturnCode(response.ErrNotFound)
 	}
 
-	return user, nil
+	return utils.ModelToDto[dto.UserResponseDTO](*user), nil
+}
+
+func (us *userService) GetUsers(payload dto.SearchDTO) []dto.UserResponseDTO {
+	return utils.ModelToDtos[dto.UserResponseDTO](
+		us.userRepo.GetUsers(payload.Search, payload.By, payload.Limit(), payload.Skip()),
+	)
 }

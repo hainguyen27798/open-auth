@@ -12,7 +12,7 @@ type IUserRepo interface {
 	CheckUserByEmail(email string) bool
 	CreateNewUser(userDto models.InsertNewUserParams) error
 	CreateSuperUser(adminDto models.InsertSuperUserParams) error
-	GetUsers() []string
+	GetUsers(search string, by string, skip int, limit int) []models.User
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserByEmailAndScope(email string, scope models.UsersScope) (*models.User, error)
 }
@@ -27,8 +27,12 @@ func NewUserRepo() IUserRepo {
 	}
 }
 
-func (ur *userRepo) GetUsers() []string {
-	return []string{"hai", "harry"}
+func (ur *userRepo) GetUsers(search string, by string, skip int, limit int) []models.User {
+	var users []models.User
+	if err := ur.sqlX.Select(&users, query.SelectUsers); err != nil {
+		return []models.User{}
+	}
+	return users
 }
 
 func (ur *userRepo) CheckUserByEmail(email string) bool {
