@@ -27,5 +27,10 @@ func (uc *UserController) GetMe(c *gin.Context) {
 		return
 	}
 
-	response.OkResponse(c, response.CodeSuccess, utils.ModelToDto[dto.UserResponseDTO](*user))
+	response.OkResponse(c, response.CodeSuccess, *user)
+}
+
+func (uc *UserController) GetUsers(c *gin.Context) {
+	query := utils.QueryToDto[dto.SearchDTO](c)
+	response.OkResponse(c, response.CodeSuccess, uc.userService.SearchUsers(query))
 }

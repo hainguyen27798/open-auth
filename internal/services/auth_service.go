@@ -1,12 +1,15 @@
 package services
 
 import (
+	"context"
+	"encoding/json"
 	"github.com/open-auth/global"
 	"github.com/open-auth/internal/dto"
 	"github.com/open-auth/internal/models"
 	"github.com/open-auth/internal/repos"
 	"github.com/open-auth/pkg/response"
 	"github.com/open-auth/pkg/utils"
+	"github.com/segmentio/kafka-go"
 	"strconv"
 	"strings"
 	"time"
@@ -68,16 +71,24 @@ func (as *authService) Register(user dto.UserRegistrationRequestDTO) *response.S
 		return response.ReturnCode(response.ErrCreateFailed)
 	}
 
-	if err := utils.SendToEmail(
-		"otp-email",
-		"hainguyen27798@gmail.com",
-		[]string{user.Email},
-		map[string]interface{}{
-			"otp": strconv.Itoa(otp),
-		},
-	); err != nil {
-		return response.ReturnCode(response.ErrSendEmailFailed)
-	}
+	body := make(map[string]interface{})
+	body["templateName"] = "otp-email"
+	body["subject"] = "OTP Verification"
+	body["to"] = []string{user.Email}
+	body["data"] = map[string]string{"otp": strconv.Itoa(otp)}
+	message, _ := json.Marshal(body)
+	go func(msg []byte) {
+		err := global.SMTPProducer.WriteMessages(context.Background(), kafka.Message{
+			Key:   []byte("opt-auth"),
+			Value: msg,
+			Time:  time.Now(),
+		})
+		if err != nil {
+			global.Logger.Error(err.Error())
+			return
+		}
+		global.Logger.Info("Send OTP to " + user.Email)
+	}(message)
 
 	return response.ReturnCode(response.CodeSuccess)
 }

@@ -42,6 +42,7 @@ type User struct {
 	VerificationCode sql.NullString      `db:"verification_code"`
 	RoleID           sql.NullString      `db:"role_id"`
 	Scope            UsersScope          `db:"scope"`
+	Role             sql.NullString      `db:"role"`
 }
 
 type InsertNewUserParams struct {

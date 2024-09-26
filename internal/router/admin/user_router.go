@@ -17,4 +17,10 @@ func (ur *UserRouter) InitUserRouter(Router *gin.RouterGroup) {
 	{
 		userRouterMePrivate.GET("/me", userController.GetMe)
 	}
+
+	userRouterAdminPrivate := Router.Group("/users")
+	userRouterAdminPrivate.Use(middlewares.AuthMiddleware(global.AdminScope))
+	{
+		userRouterAdminPrivate.GET("/", userController.GetUsers)
+	}
 }

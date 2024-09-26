@@ -5,6 +5,7 @@ import (
 	"github.com/open-auth/pkg/logger"
 	"github.com/open-auth/pkg/setting"
 	"github.com/redis/go-redis/v9"
+	"github.com/segmentio/kafka-go"
 	"time"
 )
 
@@ -25,8 +26,9 @@ const (
 )
 
 var (
-	Config setting.Config
-	Logger *logger.Zap
-	Mdb    *sqlx.DB
-	Rdb    *redis.Client
+	Config       setting.Config
+	Logger       *logger.Zap
+	Mdb          *sqlx.DB
+	Rdb          *redis.Client
+	SMTPProducer *kafka.Writer
 )
