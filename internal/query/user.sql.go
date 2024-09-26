@@ -17,10 +17,34 @@ const GetUserByEmail = `SELECT * FROM users WHERE email = ? LIMIT 1`
 const GetUserByEmailAndScope = `SELECT * FROM users WHERE email = ? AND scope = ? LIMIT 1`
 
 var SearchUserBy = map[string]string{
-	"name":            `SELECT * FROM users WHERE name LIKE ? and scope = 'user' LIMIT ? OFFSET ?`,
-	"email":           `SELECT * FROM users WHERE email LIKE ? and scope = 'user' LIMIT ? OFFSET ?`,
-	"status":          `SELECT * FROM users WHERE name LIKE ? and scope = 'user' LIMIT ? OFFSET ?`,
-	"social_provider": `SELECT * FROM users WHERE social_provider LIKE ? and scope = 'user' LIMIT ? OFFSET ?`,
+	"name": `
+		SELECT ur.*, r.name AS role 
+		FROM users AS ur 
+    	LEFT JOIN roles AS r ON ur.role_id = r.id 
+		WHERE ur.name LIKE ? and ur.scope = 'user'
+		LIMIT ? OFFSET ?
+	`,
+	"email": `
+		SELECT ur.*, r.name AS role
+		FROM users AS ur 
+		LEFT JOIN roles AS r ON ur.role_id = r.id
+		WHERE ur.email LIKE ? and ur.scope = 'user' 
+		LIMIT ? OFFSET ?
+	`,
+	"status": `
+		SELECT ur.*, r.name AS role
+		FROM users AS ur 
+		LEFT JOIN roles AS r ON ur.role_id = r.id
+		WHERE ur.status LIKE ? and ur.scope = 'user'
+		LIMIT ? OFFSET ?
+	`,
+	"social_provider": `
+		SELECT ur.*, r.name AS role
+		FROM users AS ur 
+		LEFT JOIN roles AS r ON ur.role_id = r.id
+		WHERE ur.social_provider LIKE ? and ur.scope = 'user' 
+		LIMIT ? OFFSET ?
+	`,
 }
 
 var CountSearchUserBy = map[string]string{
