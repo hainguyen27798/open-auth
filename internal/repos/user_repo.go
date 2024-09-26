@@ -6,13 +6,14 @@ import (
 	"github.com/open-auth/internal/models"
 	"github.com/open-auth/internal/query"
 	"github.com/open-auth/pkg/utils"
+	"go.uber.org/zap"
 )
 
 type IUserRepo interface {
 	CheckUserByEmail(email string) bool
 	CreateNewUser(userDto models.InsertNewUserParams) error
 	CreateSuperUser(adminDto models.InsertSuperUserParams) error
-	GetUsers(search string, by string, skip int, limit int) []models.User
+	SearchUsers(search string, by string, limit int, skip int) ([]models.User, int64)
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserByEmailAndScope(email string, scope models.UsersScope) (*models.User, error)
 }
@@ -27,12 +28,29 @@ func NewUserRepo() IUserRepo {
 	}
 }
 
-func (ur *userRepo) GetUsers(search string, by string, skip int, limit int) []models.User {
+func (ur *userRepo) SearchUsers(search string, by string, limit int, skip int) ([]models.User, int64) {
 	var users []models.User
-	if err := ur.sqlX.Select(&users, query.SelectUsers); err != nil {
-		return []models.User{}
+	var total int64
+	queryString := query.SearchUserBy[by]
+	queryCount := query.CountSearchUserBy[by]
+	search = "%" + search + "%"
+
+	if queryString == "" {
+		queryString = query.SearchUserBy["name"]
+		queryCount = query.CountSearchUserBy["name"]
 	}
-	return users
+
+	if err := ur.sqlX.Select(&users, queryString, search, limit, skip); err != nil {
+		global.Logger.Error("CountUser: ", zap.Error(err))
+		return []models.User{}, 0
+	}
+
+	if err := ur.sqlX.Get(&total, queryCount, search); err != nil {
+		global.Logger.Error("CountUser: ", zap.Error(err))
+		return []models.User{}, 0
+	}
+
+	return users, total
 }
 
 func (ur *userRepo) CheckUserByEmail(email string) bool {

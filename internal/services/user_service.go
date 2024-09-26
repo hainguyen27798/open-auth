@@ -9,7 +9,7 @@ import (
 
 type IUserService interface {
 	GetMe(email string) (*dto.UserResponseDTO, *response.ServerCode)
-	GetUsers(payload dto.SearchDTO) []dto.UserResponseDTO
+	SearchUsers(payload dto.SearchDTO) dto.PaginationDto[dto.UserResponseDTO]
 }
 
 type userService struct {
@@ -32,8 +32,14 @@ func (us *userService) GetMe(email string) (*dto.UserResponseDTO, *response.Serv
 	return utils.ModelToDto[dto.UserResponseDTO](*user), nil
 }
 
-func (us *userService) GetUsers(payload dto.SearchDTO) []dto.UserResponseDTO {
-	return utils.ModelToDtos[dto.UserResponseDTO](
-		us.userRepo.GetUsers(payload.Search, payload.By, payload.Limit(), payload.Skip()),
+func (us *userService) SearchUsers(payload dto.SearchDTO) dto.PaginationDto[dto.UserResponseDTO] {
+	users, total := us.userRepo.SearchUsers(payload.Search, payload.By, payload.Limit(), payload.Skip())
+	return utils.ModelToPaginationDto[dto.UserResponseDTO](
+		users,
+		dto.PaginationMetaDataDto{
+			Total:        total,
+			PageSize:     payload.Limit(),
+			PageSelected: payload.PageSelected(),
+		},
 	)
 }

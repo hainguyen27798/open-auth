@@ -32,5 +32,5 @@ func (uc *UserController) GetMe(c *gin.Context) {
 
 func (uc *UserController) GetUsers(c *gin.Context) {
 	query := utils.QueryToDto[dto.SearchDTO](c)
-	response.OkResponse(c, response.CodeSuccess, uc.userService.GetUsers(query))
+	response.OkResponse(c, response.CodeSuccess, uc.userService.SearchUsers(query))
 }
