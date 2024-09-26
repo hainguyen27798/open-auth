@@ -11,6 +11,7 @@ func Run() {
 	InitMysql()
 	InitRedis()
 	SetupAdmin()
+	InitKafka()
 
 	r := InitRouter()
 	err := r.Run(fmt.Sprintf(":%d", global.Config.Server.Port))
